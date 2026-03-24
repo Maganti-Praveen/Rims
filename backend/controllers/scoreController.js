@@ -16,14 +16,13 @@ exports.getRankings = async (req, res, next) => {
 
         const facultyIds = faculty.map(f => f._id);
 
-        // Batch-fetch counts for all 6 categories in parallel
-        const [allPubs, allPatents, allWorkshops, allSeminars, allCerts, allEdu] = await Promise.all([
+        // Batch-fetch counts for all 5 research categories in parallel (education excluded)
+        const [allPubs, allPatents, allWorkshops, allSeminars, allCerts] = await Promise.all([
             Publication.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
             Patent.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
             Workshop.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
             Seminar.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
             Certification.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
-            Education.find({ facultyId: { $in: facultyIds } }).select('facultyId').lean(),
         ]);
 
         // Count per faculty using O(n) grouping
@@ -38,7 +37,6 @@ exports.getRankings = async (req, res, next) => {
         const wsCount   = countByFaculty(allWorkshops);
         const semCount  = countByFaculty(allSeminars);
         const certCount = countByFaculty(allCerts);
-        const eduCount  = countByFaculty(allEdu);
 
         // Compute total uploads per faculty
         const ranked = faculty.map(f => {
@@ -49,7 +47,6 @@ exports.getRankings = async (req, res, next) => {
                 workshops:      wsCount[id]   || 0,
                 seminars:       semCount[id]  || 0,
                 certifications: certCount[id] || 0,
-                education:      eduCount[id]  || 0,
             };
             const total = Object.values(counts).reduce((a, b) => a + b, 0);
             return { ...f, score: total, counts };
@@ -82,17 +79,16 @@ exports.getRankings = async (req, res, next) => {
 exports.getFacultyScore = async (req, res, next) => {
     try {
         const id = req.params.facultyId;
-        const [pubs, pats, ws, sems, certs, edu] = await Promise.all([
+        const [pubs, pats, ws, sems, certs] = await Promise.all([
             Publication.countDocuments({ facultyId: id }),
             Patent.countDocuments({ facultyId: id }),
             Workshop.countDocuments({ facultyId: id }),
             Seminar.countDocuments({ facultyId: id }),
             Certification.countDocuments({ facultyId: id }),
-            Education.countDocuments({ facultyId: id }),
         ]);
         const counts = {
             publications: pubs, patents: pats, workshops: ws,
-            seminars: sems, certifications: certs, education: edu,
+            seminars: sems, certifications: certs,
         };
         const total = Object.values(counts).reduce((a, b) => a + b, 0);
         res.json({ success: true, data: { total, counts } });

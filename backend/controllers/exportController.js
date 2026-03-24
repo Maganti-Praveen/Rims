@@ -1,4 +1,4 @@
-﻿const ExcelJS = require('exceljs');
+const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
 const User = require('../models/User');
 const Education = require('../models/Education');
@@ -34,7 +34,7 @@ exports.exportExcel = async (req, res, next) => {
         ]);
 
         const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'RDMS';
+        workbook.creator = 'RCEE RIMS';
         workbook.created = new Date();
 
         // Summary Sheet
@@ -135,21 +135,25 @@ exports.exportPDF = async (req, res, next) => {
         if (req.user.role === 'hod' && user.department !== req.user.department)
             return res.status(403).json({ success: false, message: 'Not authorized' });
 
+        const { academicYear } = req.query;   // optional year filter
+        const yearQuery = academicYear ? { facultyId: user._id, academicYear } : { facultyId: user._id };
+
         const [education, certifications, publications, patents, workshops, seminars] = await Promise.all([
-            Education.find({ facultyId: user._id }),
-            Certification.find({ facultyId: user._id }),
-            Publication.find({ facultyId: user._id }),
-            Patent.find({ facultyId: user._id }),
-            Workshop.find({ facultyId: user._id }),
-            Seminar.find({ facultyId: user._id }),
+            Education.find({ facultyId: user._id }),              // always all
+            Certification.find({ facultyId: user._id }),          // always all
+            Publication.find(yearQuery),
+            Patent.find(yearQuery),
+            Workshop.find(yearQuery),
+            Seminar.find(yearQuery),
         ]);
 
         const doc = new PDFDocument({ margin: 0, size: 'A4', autoFirstPage: true });
         res.setHeader('Content-Type', 'application/pdf');
         const safeName = (user.name || 'faculty').replace(/\s+/g, '_');
         const safeEmpId = (user.employeeId || 'EMP').replace(/\s+/g, '_');
-        res.setHeader('Content-Disposition', 
-`attachment; filename=${safeEmpId}_${safeName}_profile.pdf`);
+        const safeYear = academicYear ? `_${academicYear.replace(/\//g, '-')}` : '';
+        res.setHeader('Content-Disposition',
+`attachment; filename=${safeEmpId}_${safeName}${safeYear}_profile.pdf`);
         doc.pipe(res);
 
         // â”€â”€ Constants â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -192,7 +196,7 @@ exports.exportPDF = async (req, res, next) => {
 
             const tx = L + 92;   // shifted right to give logo 80px + 12px gap
             doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(14)
-                .text('R.C.E.E. - Research & Department Management System', tx, 16, { width: CW - 98 });
+                .text('RCEE RIMS — Research Information Management System', tx, 16, { width: CW - 98 });
             doc.font('Helvetica').fontSize(9).fillColor(BLUE_LT)
                 .text('Faculty Research Profile  |  Confidential Document', tx, 38, { width: CW - 98 });
             const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -207,7 +211,7 @@ exports.exportPDF = async (req, res, next) => {
             const fy = PAGE_H - 32;
             doc.rect(0, fy, PAGE_W, 32).fill(NAVY);
             doc.fillColor(BLUE_LT).font('Helvetica').fontSize(7.5)
-                .text(`RDMS  |  ${user.name}  |  ${user.department}  |  ${user.employeeId}`, L, fy + 10, { width: CW - 60 });
+                .text(`RCEE RIMS  |  ${user.name}  |  ${user.department}  |  ${user.employeeId}`, L, fy + 10, { width: CW - 60 });
             doc.text(`Page ${pageNum}`, 0, fy + 10, { width: PAGE_W - L, align: 'right' });
         };
 
@@ -537,7 +541,7 @@ exports.exportNAAC = async (req, res, next) => {
         ]);
 
         const workbook = new ExcelJS.Workbook();
-        workbook.creator = 'RDMS - NAAC Report';
+        workbook.creator = 'RCEE RIMS - NAAC Report';
         workbook.created = new Date();
 
         const headerStyle = { font: { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 }, fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A8A' } }, alignment: { horizontal: 'center', wrapText: true } };

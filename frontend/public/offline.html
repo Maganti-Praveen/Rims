@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RCEE RIMS — Offline</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --orange: #ea580c; --orange-dark: #9a3412; --orange-light: #fed7aa; --white: #ffffff; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(150deg, #ea580c 0%, #f97316 45%, #fb923c 75%, #fed7aa 100%);
+      padding: 24px 16px;
+      color: white;
+      text-align: center;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.95);
+      border-radius: 24px;
+      padding: 40px 32px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      color: #1c1917;
+    }
+
+    .icon-wrap {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--orange-dark), var(--orange));
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(234,88,12,0.35);
+    }
+    .icon-wrap svg { width: 40px; height: 40px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    h1 { font-size: 1.5rem; font-weight: 700; color: #9a3412; margin-bottom: 8px; }
+    p  { font-size: 0.9rem; color: #78716c; line-height: 1.6; margin-bottom: 24px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #fff7ed; border: 1px solid #fed7aa;
+      color: #9a3412; font-size: 0.75rem; font-weight: 600;
+      padding: 4px 12px; border-radius: 20px; margin-bottom: 24px;
+    }
+    .badge span { width: 6px; height: 6px; background: #ea580c; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    .tips { background: #fff7ed; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px; text-align: left; }
+    .tips p { margin: 0 0 6px; font-size: 0.8rem; font-weight: 600; color: #9a3412; }
+    .tips li { font-size: 0.78rem; color: #78716c; padding: 3px 0; padding-left: 2px; }
+    .tips ul { padding-left: 16px; }
+
+    button {
+      width: 100%;
+      background: linear-gradient(135deg, #c2410c, #ea580c);
+      color: white;
+      border: none; cursor: pointer;
+      padding: 13px 24px;
+      border-radius: 12px;
+      font-size: 0.9rem; font-weight: 700;
+      box-shadow: 0 4px 14px rgba(234,88,12,0.4);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(234,88,12,0.4); }
+    button:active { transform: translateY(0); }
+
+    footer { margin-top: 20px; font-size: 0.7rem; color: rgba(255,255,255,0.7); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 24 24"><path d="M1 6l6-4 4 6-4 4 4 4-6 4-4-6 4-4-4-4z"/><path d="M17.5 8a5.5 5.5 0 0 1 0 8M20.5 5a9.5 9.5 0 0 1 0 14"/></svg>
+    </div>
+
+    <span class="badge"><span></span> No Internet Connection</span>
+
+    <h1>You're Offline</h1>
+    <p>RCEE RIMS couldn't reach the server. Please check your internet connection and try again.</p>
+
+    <div class="tips">
+      <p>Things to try:</p>
+      <ul>
+        <li>Check your Wi-Fi or mobile data</li>
+        <li>Move closer to your router</li>
+        <li>Disable airplane mode</li>
+        <li>Try refreshing the page</li>
+      </ul>
+    </div>
+
+    <button onclick="window.location.reload()">🔄 Try Again</button>
+  </div>
+
+  <footer>© 2025 Ramachandra College of Engineering — RCEE RIMS</footer>
+</body>
+</html>

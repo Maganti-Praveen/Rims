@@ -8,277 +8,207 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: #f8fafc;
-  color: #1f2937;
+  background-color: #fafaf9;
+  color: #1c1917;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #f5f5f4; }
+::-webkit-scrollbar-thumb { background: #fdba74; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #f97316; }
 
-::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+/* ── AOS ── */
+[data-aos] { pointer-events: none; }
+[data-aos].aos-animate { pointer-events: auto; }
 
 @layer components {
 
-  /* ---- Buttons ---- */
+  /* ════ BUTTONS ════ */
   .btn-primary {
-    @apply bg-primary-800 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-primary-900 active:bg-primary-950 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply relative overflow-hidden inline-flex items-center justify-center gap-2
+           bg-gradient-to-r from-primary-600 to-primary-500
+           text-white px-4 py-2 rounded-xl font-semibold text-sm
+           shadow-orange-sm hover:shadow-orange-md
+           hover:from-primary-700 hover:to-primary-600
+           active:scale-[0.97] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);
+    pointer-events: none;
   }
 
   .btn-secondary {
-    @apply bg-white text-primary-800 px-4 py-2 rounded-lg font-medium text-sm border border-primary-200 hover:bg-primary-50 active:bg-primary-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2
+           bg-white text-primary-700 px-4 py-2 rounded-xl font-semibold text-sm
+           border border-primary-200
+           hover:bg-primary-50 hover:border-primary-400
+           active:scale-[0.97] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-primary-300 focus:ring-offset-2;
   }
 
   .btn-accent {
-    @apply bg-accent-500 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-accent-600 active:bg-accent-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2
+           bg-gradient-to-r from-accent-500 to-accent-400
+           text-white px-4 py-2 rounded-xl font-semibold text-sm
+           shadow-sm hover:shadow-md hover:from-accent-600 hover:to-accent-500
+           active:scale-[0.97] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-danger {
-    @apply bg-red-600 text-white px-4 py-2 rounded-lg font-medium text-sm hover:bg-red-700 active:bg-red-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2
+           bg-red-600 text-white px-4 py-2 rounded-xl font-semibold text-sm
+           hover:bg-red-700 active:scale-[0.97] transition-all duration-200
+           focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2;
   }
 
-  /* ---- Inputs ---- */
+  /* ════ INPUTS ════ */
   .input-field {
-    @apply w-full px-3 py-2 border border-dark-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-colors duration-200 placeholder:text-dark-400;
+    @apply w-full px-3 py-2.5 border border-dark-200 rounded-xl text-sm
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400
+           bg-white transition-all duration-200 placeholder:text-dark-400;
   }
 
   .select-field {
-    @apply w-full px-3 py-2 border border-dark-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white transition-colors duration-200 appearance-none cursor-pointer;
+    @apply w-full px-3 py-2.5 border border-dark-200 rounded-xl text-sm
+           focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-primary-400
+           bg-white transition-all duration-200 appearance-none cursor-pointer;
   }
 
-  /* ---- Cards ---- */
+  /* ════ CARDS ════ */
   .card {
-    @apply bg-white rounded-xl border border-dark-100 shadow-sm;
+    @apply bg-white rounded-2xl border border-dark-100 shadow-sm;
   }
-
   .card-hover {
-    @apply card hover:shadow-md hover:border-primary-200 transition-all duration-200;
+    @apply card hover:shadow-orange-sm hover:border-primary-200 transition-all duration-200;
   }
 
-  /* ---- Badges ---- */
-  .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(234,88,12,0.08);
   }
 
-  .badge-primary {
-    @apply badge bg-primary-100 text-primary-800;
-  }
+  /* ════ BADGES ════ */
+  .badge            { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold; }
+  .badge-primary    { @apply badge bg-primary-100 text-primary-700 border border-primary-200; }
+  .badge-success    { @apply badge bg-emerald-100 text-emerald-700 border border-emerald-200; }
+  .badge-warning    { @apply badge bg-accent-100 text-accent-700 border border-accent-200; }
+  .badge-danger     { @apply badge bg-red-100 text-red-700 border border-red-200; }
+  .badge-accent     { @apply badge bg-accent-100 text-accent-700 border border-accent-200; }
 
-  .badge-success {
-    @apply badge bg-emerald-100 text-emerald-700;
-  }
-
-  .badge-warning {
-    @apply badge bg-amber-100 text-amber-700;
-  }
-
-  .badge-danger {
-    @apply badge bg-red-100 text-red-700;
-  }
-
-  .badge-accent {
-    @apply badge bg-accent-100 text-accent-700;
-  }
-
-  /* ---- Section Divider ---- */
+  /* ════ SECTION TITLE ════ */
   .section-title {
-    @apply text-lg font-semibold text-primary-800 pb-2 border-b-2 border-accent-500;
+    @apply font-heading text-lg font-bold text-primary-800 pb-2 border-b-2 border-primary-400;
+  }
+
+  /* ════ PAGE HEADER ════ */
+  .page-header {
+    @apply bg-gradient-to-r from-primary-800 via-primary-600 to-primary-500
+           text-white rounded-2xl p-4 sm:p-6 mb-6 shadow-orange-md;
+  }
+
+  /* Fade-in */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
   }
 }
 
-/* ---- Print Styles ---- */
+/* ════════════════════════════════════════
+   PRINT
+════════════════════════════════════════ */
 @media print {
+  aside,nav,.mobile-toggle,button,.btn-primary,.btn-secondary,.btn-accent,.btn-danger,
+  [title="Reset Password"],[class*="NotificationBell"],[class*="GlobalSearch"] { display:none !important; }
+  @page { size:A4 portrait; margin:15mm 15mm 20mm 15mm; }
+  html,body { background:white !important; font-size:11pt; color:#1a1a2e; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  main,#root>div,.flex { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; }
+  .card { border:1px solid #d1d5db !important; box-shadow:none !important; border-radius:4px !important; margin-bottom:14pt !important; page-break-inside:avoid; }
+  table { width:100% !important; border-collapse:collapse !important; font-size:9pt !important; }
+  thead tr { background-color:#c2410c !important; color:white !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  th,td { border:1px solid #e5e7eb !important; padding:4pt 6pt !important; word-break:break-word; }
+  tbody tr:nth-child(even) { background-color:#fff7ed !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  h1,h2,h3 { color:#9a3412 !important; page-break-after:avoid; }
+  .badge,[class*="badge"] { border:1px solid currentColor !important; background:transparent !important; padding:1pt 4pt !important; }
+  .print-break-before { page-break-before:always; }
+  .print-avoid-break  { page-break-inside:avoid; }
+  body::after { content:"RCEE RIMS — Faculty Research Profile — Printed"; display:block; font-size:8pt; color:#6b7280; text-align:center; border-top:1px solid #e5e7eb; margin-top:16pt; padding-top:4pt; }
+}
 
-  /* Hide all navigation/action UI */
-  aside,
-  nav,
-  .mobile-toggle,
-  button,
-  .btn-primary,
-  .btn-secondary,
-  .btn-accent,
-  .btn-danger,
-  [title="Reset Password"],
-  [class*="NotificationBell"],
-  [class*="GlobalSearch"] {
-    display: none !important;
-  }
+/* ════════════════════════════════════════
+   MOBILE — < 640px
+════════════════════════════════════════ */
+@media (max-width: 639px) {
 
-  /* Page setup */
-  @page {
-    size: A4 portrait;
-    margin: 15mm 15mm 20mm 15mm;
-  }
+  /* Layout shell */
+  .flex.min-h-screen { flex-direction: column; }
 
-  html, body {
-    background: white !important;
-    font-size: 11pt;
-    color: #1a1a2e;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+  /* Bigger touch targets */
+  .btn-primary,.btn-secondary,.btn-accent,.btn-danger { min-height: 44px; }
 
-  /* Layout full-width */
-  main, #root > div, .flex {
-    display: block !important;
-    width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
+  /* Cards stack properly */
+  .card { border-radius: 16px; }
 
-  /* Professional print header injected above first card */
-  .card:first-of-type {
-    border-top: 6px solid #1e3a5f !important;
-    padding-top: 12px !important;
-  }
-
-  /* Cards — clean borders */
-  .card {
-    border: 1px solid #d1d5db !important;
-    box-shadow: none !important;
-    border-radius: 4px !important;
-    margin-bottom: 14pt !important;
-    page-break-inside: avoid;
-  }
+  /* Inputs */
+  .input-field, .select-field { font-size: 16px; } /* prevent iOS zoom */
 
   /* Tables */
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    font-size: 9pt !important;
-  }
+  table { font-size: 12px; }
 
-  thead tr {
-    background-color: #1e3a5f !important;
-    color: white !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
+  /* Headings */
+  h1 { font-size: 1.2rem !important; }
+  h2 { font-size: 1rem !important; }
 
-  th, td {
-    border: 1px solid #e5e7eb !important;
-    padding: 4pt 6pt !important;
-    word-break: break-word;
-  }
-
-  tbody tr:nth-child(even) {
-    background-color: #f7fafc !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* Section headers */
-  h1, h2, h3 {
-    color: #1e3a5f !important;
-    page-break-after: avoid;
-  }
-
-  /* Badges — add border so they print without color background */
-  .badge, [class*="badge"] {
-    border: 1px solid currentColor !important;
-    background: transparent !important;
-    padding: 1pt 4pt !important;
-  }
-
-  /* Accordions — always open for print */
-  [class*="Accordion"] > div,
-  details {
-    display: block !important;
-    max-height: none !important;
-    overflow: visible !important;
-  }
-
-  /* Page break helpers */
-  .print-break-before { page-break-before: always; }
-  .print-avoid-break  { page-break-inside: avoid; }
-
-  /* Footer */
-  body::after {
-    content: "RDMS — Faculty Research Profile — " attr(data-name) " — Printed " attr(data-date);
-    display: block;
-    font-size: 8pt;
-    color: #6b7280;
-    text-align: center;
-    border-top: 1px solid #e5e7eb;
-    margin-top: 16pt;
-    padding-top: 4pt;
-  }
-}
-
-
-/* ---- Mobile Responsive Styles ---- */
-@media (max-width: 640px) {
-
-  /* Larger touch targets for buttons */
-  .btn-primary,
-  .btn-secondary,
-  .btn-accent,
-  .btn-danger {
-    min-height: 42px;
-    padding-left: 14px;
-    padding-right: 14px;
-  }
-
-  /* Responsive table wrapper */
-  .overflow-x-auto {
-    scroll-behavior: smooth;
-  }
-
-  /* Ensure tables don't break layout */
-  table {
-    font-size: 13px;
-  }
-
-  /* Stack action buttons on mobile */
-  .flex-wrap {
-    gap: 6px;
-  }
-
-  /* Better modal sizing */
+  /* Modal sizing */
   .fixed.inset-0 .card,
-  .fixed.inset-0>div>div {
-    margin: 8px;
-    max-height: calc(100vh - 16px);
-  }
+  .fixed.inset-0 > div > div { margin: 10px; max-height: calc(100vh - 20px); }
 
-  /* Reduce heading sizes */
-  h1 {
-    font-size: 1.25rem !important;
-  }
+  /* Horizontal scroll tables */
+  .overflow-x-auto { -webkit-overflow-scrolling: touch; }
 
-  h2 {
-    font-size: 1.1rem !important;
-  }
+  /* Stats grid — 3 across on phone */
+  .stats-grid-mobile { grid-template-columns: repeat(3, 1fr) !important; }
 
-  /* Compact form grids */
-  .grid.grid-cols-1.md\:grid-cols-2 {
-    gap: 12px;
-  }
+  /* Hero stats — hide label, show number only */
+  .hero-stat-label { display: none !important; }
+
+  /* Page section gaps */
+  .space-y-6 > * + * { margin-top: 1rem !important; }
+
+  /* Chips/badge wrap */
+  .flex-wrap { gap: 4px; }
+
+  /* Footer compress */
+  footer { padding: 8px 12px; }
 }
 
-/* Very small phones */
-@media (max-width: 380px) {
-
-  .btn-primary,
-  .btn-secondary,
-  .btn-accent {
-    font-size: 12px;
-    padding: 8px 10px;
-  }
+/* ════════════════════════════════════════
+   SMALL PHONES — < 380px
+════════════════════════════════════════ */
+@media (max-width: 379px) {
+  .btn-primary,.btn-secondary,.btn-accent { font-size: 12px; padding: 8px 10px; }
+  h1 { font-size: 1.1rem !important; }
 }

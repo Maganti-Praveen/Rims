@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
+import { confirmDelete } from '../utils/swal';
 import Accordion from '../components/ui/Accordion';
 import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import {
     User, GraduationCap, Award, BookOpen, Lightbulb,
     Briefcase, Mic, Plus, Edit3, Trash2, Download,
-    Upload, ExternalLink, Printer, KeyRound
+    Upload, ExternalLink, KeyRound, X
 } from 'lucide-react';
 import ProfilePicture from '../components/ui/ProfilePicture';
 import useAcademicYears from '../hooks/useAcademicYears';
@@ -37,6 +38,8 @@ const FacultyProfile = () => {
     const [editProfileOpen, setEditProfileOpen] = useState(false);
     const [profileForm, setProfileForm] = useState({});
     const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+    const [pdfModalOpen, setPdfModalOpen] = useState(false);
+    const [pdfYear, setPdfYear] = useState('');
 
     const facultyId = id || currentUser?._id;
     const canEdit = currentUser?._id === facultyId;
@@ -45,20 +48,19 @@ const FacultyProfile = () => {
 
     useEffect(() => {
         if (facultyId) fetchAll();
-    }, [facultyId, yearFilter]);
+    }, [facultyId]);
 
     const fetchAll = async () => {
         setLoading(true);
         try {
-            const params = yearFilter ? { academicYear: yearFilter } : {};
             const [facRes, eduRes, certRes, pubRes, patRes, wsRes, semRes] = await Promise.all([
                 API.get(`/users/${facultyId}`),
                 API.get(`/education/${facultyId}`),
                 API.get(`/certifications/${facultyId}`),
-                API.get(`/publications/faculty/${facultyId}`, { params }),
-                API.get(`/patents/faculty/${facultyId}`, { params }),
-                API.get(`/workshops/faculty/${facultyId}`, { params }),
-                API.get(`/seminars/faculty/${facultyId}`, { params }),
+                API.get(`/publications/faculty/${facultyId}`),
+                API.get(`/patents/faculty/${facultyId}`),
+                API.get(`/workshops/faculty/${facultyId}`),
+                API.get(`/seminars/faculty/${facultyId}`),
             ]);
             setFaculty(facRes.data.data);
             setEducation(eduRes.data.data);
@@ -144,7 +146,8 @@ const FacultyProfile = () => {
     };
 
     const handleDelete = async (type, itemId) => {
-        if (!window.confirm('Are you sure you want to delete this entry?')) return;
+        const ok = await confirmDelete({ title: 'Delete entry?', text: 'This cannot be undone.', confirmText: 'Yes, Delete' });
+        if (!ok) return;
         const endpoints = {
             education: '/education',
             certification: '/certifications',
@@ -162,16 +165,19 @@ const FacultyProfile = () => {
         }
     };
 
-    const handleDownloadPDF = async () => {
+    const handleDownloadPDF = async (year) => {
         try {
-            const response = await API.get(`/export/pdf/${facultyId}`, { responseType: 'blob' });
+            const params = year ? `?academicYear=${encodeURIComponent(year)}` : '';
+            const response = await API.get(`/export/pdf/${facultyId}${params}`, { responseType: 'blob' });
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `${faculty?.name || 'profile'}_profile.pdf`);
+            const yearSuffix = year ? `_${year.replace(/\//g, '-')}` : '';
+            link.setAttribute('download', `${faculty?.name || 'profile'}${yearSuffix}_profile.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
+            setPdfModalOpen(false);
             toast.success('PDF downloaded');
         } catch (err) {
             toast.error('PDF export failed');
@@ -256,6 +262,24 @@ const FacultyProfile = () => {
                                 <input name="specialization" value={formData.specialization || ''} onChange={handleChange} className="input-field" /></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Year</label>
                                 <input name="year" value={formData.year || ''} onChange={handleChange} className="input-field" /></div>
+                        </div>
+                        {/* Highest Education Toggle */}
+                        <div className="flex items-center gap-3 mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                            <button
+                                type="button"
+                                onClick={() => setFormData({ ...formData, isHighest: !formData.isHighest })}
+                                className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none ${
+                                    formData.isHighest ? 'bg-amber-500' : 'bg-dark-200'
+                                }`}
+                            >
+                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${
+                                    formData.isHighest ? 'translate-x-5' : 'translate-x-0'
+                                }`} />
+                            </button>
+                            <div>
+                                <p className="text-sm font-semibold text-amber-800">Highest Education</p>
+                                <p className="text-xs text-amber-600">Mark this as your highest qualification</p>
+                            </div>
                         </div>
                     </>
                 );
@@ -416,20 +440,19 @@ const FacultyProfile = () => {
                         <div>
                             <h1 className="text-xl font-bold text-dark-900">{faculty.name}</h1>
                             <p className="text-dark-500 text-sm">{faculty.department} • {faculty.employeeId}</p>
-                            <span className={`badge mt-1 ${faculty.role === 'hod' ? 'badge-warning' : 'badge-primary'}`}>
-                                {faculty.role.toUpperCase()}
-                            </span>
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                {faculty.designation && (
+                                    <span className="badge bg-violet-100 text-violet-700 border border-violet-200 text-xs font-medium">
+                                        {faculty.designation}
+                                    </span>
+                                )}
+                                <span className={`badge ${faculty.role === 'hod' ? 'badge-warning' : 'badge-primary'}`}>
+                                    {faculty.role.toUpperCase()}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <select
-                            value={yearFilter}
-                            onChange={(e) => setYearFilter(e.target.value)}
-                            className="select-field w-auto text-sm"
-                        >
-                            <option value="">All Years</option>
-                            {academicYears.map((y) => <option key={y} value={y}>{y}</option>)}
-                        </select>
                         {canEdit && (
                             <button onClick={openEditProfile} className="btn-secondary flex items-center gap-2 text-sm">
                                 <Edit3 className="w-4 h-4" /> Edit Profile
@@ -443,11 +466,8 @@ const FacultyProfile = () => {
                                 <KeyRound className="w-4 h-4" /> Reset Password
                             </button>
                         )}
-                        <button onClick={handleDownloadPDF} className="btn-secondary flex items-center gap-2 text-sm">
-                            <Download className="w-4 h-4" /> PDF
-                        </button>
-                        <button onClick={() => window.print()} className="btn-accent flex items-center gap-2 text-sm">
-                            <Printer className="w-4 h-4" /> Print
+                        <button onClick={() => setPdfModalOpen(true)} className="btn-secondary flex items-center gap-2 text-sm">
+                            <Download className="w-4 h-4" /> Save PDF
                         </button>
                     </div>
                 </div>
@@ -529,6 +549,7 @@ const FacultyProfile = () => {
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">University</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Specialization</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Year</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Highest</th>
                                     {canEdit && <th className="py-2 px-3" />}
                                 </tr></thead>
                                 <tbody>
@@ -538,6 +559,13 @@ const FacultyProfile = () => {
                                             <td className="py-2 px-3 text-dark-600">{e.university}</td>
                                             <td className="py-2 px-3 text-dark-600">{e.specialization || '-'}</td>
                                             <td className="py-2 px-3 text-dark-600">{e.year || '-'}</td>
+                                            <td className="py-2 px-3">
+                                                {e.isHighest ? (
+                                                    <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-amber-300">
+                                                        ★ Highest
+                                                    </span>
+                                                ) : '-'}
+                                            </td>
                                             {canEdit && <td className="py-2 px-3"><TableActions type="education" item={e} /></td>}
                                         </tr>
                                     ))}
@@ -874,6 +902,57 @@ const FacultyProfile = () => {
                     user={faculty}
                     onClose={() => setResetPasswordOpen(false)}
                 />
+            )}
+
+            {/* PDF Year Picker Modal */}
+            {pdfModalOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-dark-100 bg-primary-800">
+                            <div className="flex items-center gap-2 text-white">
+                                <Download className="w-5 h-5" />
+                                <h2 className="text-base font-semibold">Save Profile as PDF</h2>
+                            </div>
+                            <button onClick={() => setPdfModalOpen(false)} className="text-white/70 hover:text-white">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        {/* Body */}
+                        <div className="p-6">
+                            <label className="block text-sm font-medium text-dark-700 mb-2">Select Academic Year</label>
+                            <select
+                                value={pdfYear}
+                                onChange={(e) => setPdfYear(e.target.value)}
+                                className="select-field w-full mb-5"
+                            >
+                                <option value="">All Years (Complete Profile)</option>
+                                {academicYears.map((y) => (
+                                    <option key={y} value={y}>{y}</option>
+                                ))}
+                            </select>
+                            <p className="text-xs text-dark-400 mb-5">
+                                {pdfYear
+                                    ? `PDF will include only ${pdfYear} research data (Education & Certifications always included).`
+                                    : 'PDF will include all research data across all years.'}
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setPdfModalOpen(false)}
+                                    className="btn-secondary flex-1 text-sm"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => handleDownloadPDF(pdfYear)}
+                                    className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" /> Download PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

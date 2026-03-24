@@ -1,157 +1,173 @@
 const nodemailer = require('nodemailer');
-const os = require('os');
+const os   = require('os');
 const path = require('path');
-const fs = require('fs');
+const fs   = require('fs');
 
-// Auto-detect local network IP (works on any WiFi/network)
+// Auto-detect local network IP
 const getLocalIP = () => {
     const interfaces = os.networkInterfaces();
     for (const name of Object.keys(interfaces)) {
         for (const iface of interfaces[name]) {
-            if (iface.family === 'IPv4' && !iface.internal) {
-                return iface.address;
-            }
+            if (iface.family === 'IPv4' && !iface.internal) return iface.address;
         }
     }
     return 'localhost';
 };
-
 const getFrontendUrl = () => {
     const port = process.env.VITE_FRONTEND_PORT || 5173;
     return `http://${getLocalIP()}:${port}`;
 };
 
-// Logo path for CID inline attachment
-const logoPath = path.join(__dirname, '../logo/rcee.png');
-const hasLogo = fs.existsSync(logoPath);
-
-// Inline attachment definition (reused across all emails)
+// Logo
+const logoPath       = path.join(__dirname, '../logo/rcee.png');
+const hasLogo        = fs.existsSync(logoPath);
 const logoAttachment = hasLogo ? [{
-    filename: 'rcee.png',
-    path: logoPath,
-    cid: 'rceelogo',          // referenced as src="cid:rceelogo" in HTML
-    contentDisposition: 'inline',
+    filename: 'rcee.png', path: logoPath,
+    cid: 'rceelogo', contentDisposition: 'inline',
 }] : [];
 
-// Shared header — uses cid: reference which all email clients support
+/* ── Shared pieces ──────────────────────────────────────────── */
+
 const emailHeader = `
-  <div style="background:#ffffff; padding:0; text-align:center;">
+  <div style="background:linear-gradient(135deg,#9a3412 0%,#c2410c 45%,#ea580c 80%,#fb923c 100%);padding:24px 32px;">
     ${hasLogo
-        ? `<img src="cid:rceelogo" alt="RCEE RIMS" style="width:100%; max-width:600px; height:auto; display:block; margin:0 auto;" />`
-        : `<div style="padding:20px; background:#1E3A8A; color:white;"><h2 style="margin:0;">RCEE RIMS</h2><p style="margin:5px 0 0;color:#bfdbfe;">Research Information Management System</p></div>`
+        ? `<img src="cid:rceelogo" alt="RCEE RIMS" style="height:48px;object-fit:contain;display:block;margin-bottom:10px;" />`
+        : `<p style="margin:0 0 4px;font-size:11px;color:#fed7aa;letter-spacing:0.08em;text-transform:uppercase;">Ramachandra College of Engineering</p>`
     }
+    <p style="margin:0;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.3px;">RCEE RIMS</p>
+    <p style="margin:4px 0 0;font-size:11px;color:#fed7aa;">Research Information Management System</p>
   </div>`;
 
 const emailFooter = `
-  <div style="background:#f0f0f0; padding:15px; text-align:center; font-size:12px; color:#666;">
-    Support: rcee.rims@gmail.com
+  <div style="background:#fff7ed;border-top:2px solid #fed7aa;padding:14px 32px;text-align:center;">
+    <p style="margin:0;font-size:11px;color:#a8a29e;">
+      © ${new Date().getFullYear()} <strong style="color:#ea580c;">Ramachandra College of Engineering &amp; Technology</strong><br>
+      Support: <a href="mailto:rcee.rims@gmail.com" style="color:#ea580c;text-decoration:none;">rcee.rims@gmail.com</a>
+    </p>
   </div>`;
 
-// Create transporter
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
-
-// ─── Welcome Email ──────────────────────────────────────────────
-exports.sendWelcomeEmail = async (user, plainPassword) => {
-    const loginUrl = getFrontendUrl();
-    const html = `
-<div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:30px;">
-  <div style="max-width:600px; margin:auto; background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+/* Wrapper keeps max width and rounded card */
+const wrap = (body) => `
+<div style="font-family:'Segoe UI',Arial,sans-serif;background:#f5f5f4;padding:30px 16px;">
+  <div style="max-width:600px;margin:auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
     ${emailHeader}
-    <div style="padding:30px; color:#333;">
-      <h3>Welcome ${user.name},</h3>
-      <p>Your account has been successfully created in the <b>RCEE Research Information Management System (RIMS)</b>.</p>
-      <p>Please find your login details below:</p>
-      <table style="width:100%; border-collapse:collapse; margin:20px 0;">
-        <tr><td style="padding:8px; border:1px solid #ddd;"><b>Name</b></td><td style="padding:8px; border:1px solid #ddd;">${user.name}</td></tr>
-        <tr><td style="padding:8px; border:1px solid #ddd;"><b>Email</b></td><td style="padding:8px; border:1px solid #ddd;">${user.email}</td></tr>
-        <tr><td style="padding:8px; border:1px solid #ddd;"><b>Department</b></td><td style="padding:8px; border:1px solid #ddd;">${user.department}</td></tr>
-        <tr><td style="padding:8px; border:1px solid #ddd;"><b>Role</b></td><td style="padding:8px; border:1px solid #ddd;">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td></tr>
-        <tr><td style="padding:8px; border:1px solid #ddd;"><b>Password</b></td><td style="padding:8px; border:1px solid #ddd;">${plainPassword}</td></tr>
-      </table>
-      <p>You can login to the system using the link below:</p>
-      <div style="text-align:center; margin:25px 0;">
-        <a href="${loginUrl}" style="background:#F97316; color:white; padding:12px 25px; text-decoration:none; border-radius:5px; font-weight:bold;">Login to RIMS</a>
-      </div>
-      <p>After logging in, please update your profile and add your research details such as publications, patents, workshops, and seminars.</p>
-      <br>
-      <p>Regards,<br><b>RCEE RIMS Administration</b><br>Ramachandra College of Engineering</p>
+    <div style="padding:28px 32px;color:#292524;line-height:1.6;">
+      ${body}
     </div>
     ${emailFooter}
   </div>
 </div>`;
+
+/* Orange CTA button */
+const btn = (href, label) =>
+    `<div style="text-align:center;margin:28px 0;">
+       <a href="${href}" style="background:linear-gradient(135deg,#c2410c,#ea580c);color:#ffffff;padding:13px 32px;
+          text-decoration:none;border-radius:8px;font-weight:700;font-size:14px;display:inline-block;
+          box-shadow:0 4px 12px rgba(234,88,12,0.35);">${label}</a>
+     </div>`;
+
+/* Info table rows */
+const infoTable = (rows) =>
+    `<table style="width:100%;border-collapse:collapse;margin:18px 0;font-size:13px;">
+       ${rows.map(([k, v]) => `
+       <tr>
+         <td style="padding:8px 12px;font-weight:600;color:#9a3412;background:#fff7ed;
+                    border:1px solid #fed7aa;width:35%;">${k}</td>
+         <td style="padding:8px 12px;border:1px solid #fed7aa;">${v}</td>
+       </tr>`).join('')}
+     </table>`;
+
+/* Section heading */
+const h3 = (text) =>
+    `<p style="margin:0 0 4px;font-size:15px;font-weight:700;color:#9a3412;">${text}</p>`;
+
+/* Transporter */
+const transporter = nodemailer.createTransport({
+    host: 'smtp.gmail.com', port: 465, secure: true,
+    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+});
+
+/* ── Welcome Email ─────────────────────────────────────────── */
+exports.sendWelcomeEmail = async (user, plainPassword) => {
+    const loginUrl = getFrontendUrl();
+    const html = wrap(`
+      ${h3(`Welcome, ${user.name}! 🎉`)}
+      <p style="color:#57534e;margin:8px 0 16px;">
+        Your account has been successfully created in the
+        <strong style="color:#9a3412;">RCEE Research Information Management System (RIMS)</strong>.
+        Please find your login details below:
+      </p>
+      ${infoTable([
+          ['Name',       user.name],
+          ['Email',      user.email],
+          ['Department', user.department],
+          ['Role',       user.role.charAt(0).toUpperCase() + user.role.slice(1)],
+          ['Password',   `<code style="background:#fff7ed;padding:2px 8px;border-radius:4px;color:#ea580c;font-weight:700;">${plainPassword}</code>`],
+      ])}
+      ${btn(loginUrl, 'Login to RIMS →')}
+      <p style="font-size:12px;color:#a8a29e;border-left:3px solid #fed7aa;padding-left:10px;margin-top:8px;">
+        After logging in, please update your profile and add your research details such as publications, patents, workshops, and seminars.
+      </p>
+      <p style="margin-top:20px;color:#57534e;">
+        Regards,<br><strong style="color:#9a3412;">RCEE RIMS Administration</strong><br>
+        Ramachandra College of Engineering
+      </p>`);
 
     await transporter.sendMail({
         from: `"RCEE RIMS" <${process.env.EMAIL_USER}>`,
         to: user.email,
         subject: 'Welcome to RCEE RIMS – Your Account Details',
-        html,
-        attachments: logoAttachment,
+        html, attachments: logoAttachment,
     });
 };
 
-// ─── Password Reset Email ──────────────────────────────────────
+/* ── Password Reset Email ──────────────────────────────────── */
 exports.sendPasswordResetEmail = async (user, resetToken) => {
-    const frontendUrl = getFrontendUrl();
-    const resetLink = `${frontendUrl}/reset-password?token=${resetToken}`;
-    const html = `
-<div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:30px;">
-  <div style="max-width:600px; margin:auto; background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-    ${emailHeader}
-    <div style="padding:30px; color:#333;">
-      <h3>Hello ${user.name},</h3>
-      <p>A request has been received to reset the password for your account in the <b>RCEE Research Information Management System</b>.</p>
-      <p>Please click the button below to set a new password:</p>
-      <div style="text-align:center; margin:25px 0;">
-        <a href="${resetLink}" style="background:#F97316; color:white; padding:12px 25px; text-decoration:none; border-radius:5px; font-weight:bold;">Reset Password</a>
+    const resetLink = `${getFrontendUrl()}/reset-password?token=${resetToken}`;
+    const html = wrap(`
+      ${h3(`Hello, ${user.name}`)}
+      <p style="color:#57534e;margin:8px 0 16px;">
+        A request has been received to reset the password for your account in the
+        <strong style="color:#9a3412;">RCEE Research Information Management System</strong>.
+      </p>
+      <p style="color:#57534e;">Click the button below to set a new password:</p>
+      ${btn(resetLink, 'Reset Password →')}
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:12px 16px;margin-top:4px;">
+        <p style="margin:0;font-size:12px;color:#78716c;">
+          ⏰ This link will expire in <strong>15 minutes</strong>.<br>
+          If you did not request a password reset, you can safely ignore this email.
+        </p>
       </div>
-      <p>This link will expire in <b>15 minutes</b>.</p>
-      <p>If you did not request a password reset, you can safely ignore this email.</p>
-      <br>
-      <p>Regards,<br><b>RCEE RIMS Support Team</b><br>Ramachandra College of Engineering</p>
-    </div>
-    ${emailFooter}
-  </div>
-</div>`;
+      <p style="margin-top:20px;color:#57534e;">
+        Regards,<br><strong style="color:#9a3412;">RCEE RIMS Support Team</strong><br>
+        Ramachandra College of Engineering
+      </p>`);
 
     await transporter.sendMail({
         from: `"RCEE RIMS" <${process.env.EMAIL_USER}>`,
         to: user.email,
         subject: 'RCEE RIMS – Password Reset Request',
-        html,
-        attachments: logoAttachment,
+        html, attachments: logoAttachment,
     });
 };
 
-// ─── Broadcast Email ───────────────────────────────────────────
+/* ── Broadcast Email ───────────────────────────────────────── */
 exports.sendBroadcastEmail = async (recipients, title, message) => {
-    const html = `
-<div style="font-family: Arial, sans-serif; background:#f5f7fb; padding:30px;">
-  <div style="max-width:600px; margin:auto; background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-    ${emailHeader}
-    <div style="padding:30px; color:#333;">
-      ${title ? `<h3 style="color:#1E3A8A;">${title}</h3>` : ''}
-      <p style="font-size:15px; line-height:1.7;">${message.replace(/\n/g, '<br>')}</p>
-      <br>
-      <p>Regards,<br><b>RCEE RIMS Administration</b><br>Ramachandra College of Engineering</p>
-    </div>
-    ${emailFooter}
-  </div>
-</div>`;
+    const html = wrap(`
+      ${title ? h3(title) : ''}
+      <p style="font-size:14px;color:#44403c;line-height:1.8;margin-top:10px;">
+        ${message.replace(/\n/g, '<br>')}
+      </p>
+      <p style="margin-top:24px;color:#57534e;">
+        Regards,<br><strong style="color:#9a3412;">RCEE RIMS Administration</strong><br>
+        Ramachandra College of Engineering
+      </p>`);
 
     await transporter.sendMail({
         from: `"RCEE RIMS" <${process.env.EMAIL_USER}>`,
-        to: process.env.EMAIL_USER,
+        to:  process.env.EMAIL_USER,
         bcc: recipients.map(r => r.email),
         subject: title ? `RCEE RIMS – ${title}` : 'RCEE RIMS – Announcement',
-        html,
-        attachments: logoAttachment,
+        html, attachments: logoAttachment,
     });
 };

@@ -24,6 +24,10 @@ const educationSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    isHighest: {
+        type: Boolean,
+        default: false,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Education', educationSchema);

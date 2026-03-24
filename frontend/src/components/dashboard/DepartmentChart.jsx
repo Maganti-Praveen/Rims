@@ -1,41 +1,100 @@
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    Chart as ChartJS,
+    CategoryScale, LinearScale, BarElement,
+    Title, Tooltip, Legend, ArcElement,
+} from 'chart.js';
+import { Bar } from 'react-chartjs-2';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 const DepartmentChart = ({ data }) => {
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-64 text-dark-400 text-sm">
-                No chart data available
+            <div className="flex flex-col items-center justify-center h-64 gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-primary-50 flex items-center justify-center">
+                    <span className="text-2xl">📊</span>
+                </div>
+                <p className="text-dark-400 text-sm font-medium">No chart data available</p>
             </div>
         );
     }
 
+    const labels = data.map(d => d.department);
+
+    const chartData = {
+        labels,
+        datasets: [
+            {
+                label: 'Publications',
+                data: data.map(d => d.publications || 0),
+                backgroundColor: 'rgba(249,115,22,0.85)',
+                borderRadius: 6,
+                borderSkipped: false,
+            },
+            {
+                label: 'Patents',
+                data: data.map(d => d.patents || 0),
+                backgroundColor: 'rgba(245,158,11,0.85)',
+                borderRadius: 6,
+                borderSkipped: false,
+            },
+            {
+                label: 'Workshops',
+                data: data.map(d => d.workshops || 0),
+                backgroundColor: 'rgba(16,185,129,0.85)',
+                borderRadius: 6,
+                borderSkipped: false,
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: {
+                    font: { family: 'Inter', size: 12, weight: '600' },
+                    color: '#57534e',
+                    padding: 16,
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                },
+            },
+            tooltip: {
+                backgroundColor: '#fff',
+                titleColor: '#1c1917',
+                bodyColor: '#78716c',
+                borderColor: '#fed7aa',
+                borderWidth: 1,
+                cornerRadius: 12,
+                padding: 12,
+                titleFont: { family: 'Inter', weight: '700', size: 13 },
+                bodyFont: { family: 'Inter', size: 12 },
+                boxShadow: '0 4px 14px rgba(234,88,12,0.15)',
+            },
+        },
+        scales: {
+            x: {
+                grid: { display: false },
+                ticks: { font: { family: 'Inter', size: 11 }, color: '#78716c' },
+                border: { color: '#e7e5e4' },
+            },
+            y: {
+                beginAtZero: true,
+                grid: { color: '#f5f5f4' },
+                ticks: { font: { family: 'Inter', size: 11 }, color: '#78716c', stepSize: 1 },
+                border: { dash: [4, 4], color: 'transparent' },
+            },
+        },
+        animation: { duration: 800, easing: 'easeOutQuart' },
+    };
+
     return (
-        <ResponsiveContainer width="100%" height={350}>
-            <BarChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis
-                    dataKey="department"
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
-                />
-                <YAxis
-                    tick={{ fontSize: 12, fill: '#64748b' }}
-                    axisLine={{ stroke: '#e2e8f0' }}
-                />
-                <Tooltip
-                    contentStyle={{
-                        borderRadius: '12px',
-                        border: 'none',
-                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                        fontSize: '13px',
-                    }}
-                />
-                <Legend wrapperStyle={{ fontSize: '13px' }} />
-                <Bar dataKey="publications" fill="#1e3a8a" radius={[4, 4, 0, 0]} name="Publications" />
-                <Bar dataKey="patents" fill="#f97316" radius={[4, 4, 0, 0]} name="Patents" />
-                <Bar dataKey="workshops" fill="#10b981" radius={[4, 4, 0, 0]} name="Workshops" />
-            </BarChart>
-        </ResponsiveContainer>
+        <div style={{ height: '350px' }}>
+            <Bar data={chartData} options={options} />
+        </div>
     );
 };
 

@@ -32,6 +32,20 @@ const userSchema = new mongoose.Schema({
         enum: ['admin', 'hod', 'faculty'],
         default: 'faculty',
     },
+    designation: {
+        type: String,
+        enum: [
+            'Assistant Professor',
+            'Associate Professor',
+            'Head of the Department',
+            'Principal',
+            'Dean Planning',
+            'Dean Internal Affairs',
+            'Dean Placements',
+            'Dean Academics',
+        ],
+        default: 'Assistant Professor',
+    },
     department: {
         type: String,
         required: [true, 'Please add a department'],

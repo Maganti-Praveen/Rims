@@ -3,6 +3,7 @@ import { Camera, Upload, X, Trash2, RotateCcw } from 'lucide-react';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import getFileUrl from '../../utils/getFileUrl';
+import { confirmDelete } from '../../utils/swal';
 
 const ProfilePicture = ({ faculty, canEdit, onUpdate }) => {
     const [showModal, setShowModal] = useState(false);
@@ -103,7 +104,8 @@ const ProfilePicture = ({ faculty, canEdit, onUpdate }) => {
     };
 
     const handleRemove = async () => {
-        if (!window.confirm('Remove profile picture?')) return;
+        const ok = await confirmDelete({ title: 'Remove profile picture?', text: 'Your avatar will be reset to initials.', confirmText: 'Yes, Remove' });
+        if (!ok) return;
         try {
             const { data } = await API.delete(`/users/${faculty._id}/profile-picture`);
             toast.success('Profile picture removed');

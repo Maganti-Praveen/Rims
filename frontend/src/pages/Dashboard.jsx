@@ -3,153 +3,153 @@ import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import StatCard from '../components/dashboard/StatCard';
 import DepartmentChart from '../components/dashboard/DepartmentChart';
-import { Users, BookOpen, Lightbulb, Award, Mic, FileCheck, TrendingUp, Download, FileSpreadsheet, Trophy } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    Users, BookOpen, Lightbulb, Award, Mic, FileCheck,
+    TrendingUp, Download, FileSpreadsheet, Trophy, Filter
+} from 'lucide-react';
+import {
+    Chart as ChartJS, CategoryScale, LinearScale,
+    PointElement, LineElement, Title, Tooltip, Legend, Filler
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
 import useAcademicYears from '../hooks/useAcademicYears';
 import RankingsPanel from '../components/dashboard/RankingsPanel';
 import DomainChart from '../components/dashboard/DomainChart';
-import ReminderBanner from '../components/ui/ReminderBanner';
+
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 const Dashboard = () => {
     const { user } = useAuth();
-    const [stats, setStats] = useState(null);
-    const [chartData, setChartData] = useState([]);
-    const [trendData, setTrendData] = useState([]);
+    const [stats, setStats]                   = useState(null);
+    const [chartData, setChartData]           = useState([]);
+    const [trendData, setTrendData]           = useState([]);
     const [topContributors, setTopContributors] = useState([]);
-    const [departments, setDepartments] = useState([]);
-    const [filters, setFilters] = useState({ department: '', academicYear: '' });
-    const [loading, setLoading] = useState(true);
-    const [exporting, setExporting] = useState(false);
-    const { academicYears } = useAcademicYears();
+    const [departments, setDepartments]       = useState([]);
+    const [filters, setFilters]               = useState({ department: '', academicYear: '' });
+    const [loading, setLoading]               = useState(true);
+    const [exporting, setExporting]           = useState(false);
+    const { academicYears }                   = useAcademicYears();
 
     useEffect(() => {
         fetchData();
-        if (user.role === 'admin') {
-            fetchDepartments();
-        }
+        if (user.role === 'admin') fetchDepartments();
     }, [filters]);
 
     const fetchDepartments = async () => {
-        try {
-            const { data } = await API.get('/users/departments');
-            setDepartments(data.data);
-        } catch (err) {
-            console.error(err);
-        }
+        try { const { data } = await API.get('/users/departments'); setDepartments(data.data); }
+        catch (err) { console.error(err); }
     };
 
     const fetchData = async () => {
         setLoading(true);
         try {
             const params = {};
-            if (filters.department) params.department = filters.department;
+            if (filters.department)  params.department  = filters.department;
             if (filters.academicYear) params.academicYear = filters.academicYear;
-
             const [statsRes, chartRes, trendRes, topRes] = await Promise.all([
                 API.get('/dashboard/stats', { params }),
                 API.get('/dashboard/chart', { params }),
                 API.get('/dashboard/trends', { params }),
                 API.get('/dashboard/top-contributors', { params }),
             ]);
-
             setStats(statsRes.data.data);
             setChartData(chartRes.data.data);
             setTrendData(trendRes.data.data);
             setTopContributors(topRes.data.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+        } catch (err) { console.error(err); }
+        finally { setLoading(false); }
     };
 
     const handleExport = async (type) => {
         setExporting(true);
         try {
             const params = {};
-            if (filters.department) params.department = filters.department;
+            if (filters.department)   params.department   = filters.department;
             if (filters.academicYear) params.academicYear = filters.academicYear;
-
             const endpoint = type === 'naac' ? '/export/naac' : '/export/excel';
-            const filename = type === 'naac' ? 'NAAC_Report.xlsx' : 'RDMS_Report.xlsx';
-
+            const filename = type === 'naac' ? 'RCEE_NAAC_Report.xlsx' : 'RCEE_RIMS_Report.xlsx';
             const response = await API.get(endpoint, { params, responseType: 'blob' });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const url  = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', filename);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setExporting(false);
-        }
+            link.href = url; link.setAttribute('download', filename);
+            document.body.appendChild(link); link.click();
+            link.remove(); window.URL.revokeObjectURL(url);
+        } catch (err) { console.error(err); }
+        finally { setExporting(false); }
+    };
+
+    /* ── Chart.js line chart data ── */
+    const lineData = {
+        labels: trendData.map(d => d.year),
+        datasets: [
+            { label: 'Publications', data: trendData.map(d => d.publications || 0), borderColor: '#ea580c', backgroundColor: 'rgba(234,88,12,0.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#ea580c' },
+            { label: 'Patents',      data: trendData.map(d => d.patents      || 0), borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.08)',   fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#d97706' },
+            { label: 'Workshops',    data: trendData.map(d => d.workshops    || 0), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)',  fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#10b981' },
+            { label: 'Seminars',     data: trendData.map(d => d.seminars     || 0), borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.08)',  fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#7c3aed' },
+        ],
+    };
+    const lineOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'top', labels: { font: { family: 'Inter', size: 12, weight: '600' }, color: '#57534e', usePointStyle: true, padding: 16 } },
+            tooltip: { backgroundColor: '#fff', titleColor: '#1c1917', bodyColor: '#78716c', borderColor: '#fed7aa', borderWidth: 1, cornerRadius: 12, padding: 12, titleFont: { family: 'Inter', weight: '700' }, bodyFont: { family: 'Inter', size: 12 } },
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 }, color: '#78716c' }, border: { color: '#e7e5e4' } },
+            y: { beginAtZero: true, grid: { color: '#f5f5f4' }, ticks: { font: { family: 'Inter', size: 11 }, color: '#78716c', stepSize: 1 }, border: { dash: [4, 4], color: 'transparent' } },
+        },
+        animation: { duration: 800, easing: 'easeOutQuart' },
     };
 
     return (
-        <div>
-            {/* Reminder Banner */}
-            <ReminderBanner />
-
-            {/* Page Header */}
-            <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+        <div className="space-y-6">
+            {/* ── Page header ── */}
+            <div
+                data-aos="fade-down"
+                className="rounded-2xl px-6 py-5 flex flex-wrap items-center justify-between gap-4"
+                style={{ background: 'linear-gradient(135deg,#9a3412 0%,#c2410c 45%,#ea580c 80%,#fb923c 100%)' }}
+            >
                 <div>
-                    <h1 className="text-2xl font-bold text-dark-900">Dashboard</h1>
-                    <p className="text-dark-500 text-sm mt-1">
+                    <h1 className="font-heading text-2xl font-bold text-white">Dashboard</h1>
+                    <p className="text-orange-200 text-sm mt-0.5">
                         {user.role === 'admin' ? 'Overview of all departments' : `${user.department} Department Overview`}
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <button
-                        onClick={() => handleExport('excel')}
-                        disabled={exporting}
-                        className="btn-secondary flex items-center gap-2 text-xs sm:text-sm"
-                    >
+                    <button onClick={() => handleExport('excel')} disabled={exporting}
+                        className="flex items-center gap-2 bg-white/20 hover:bg-white/30 border border-white/30 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all backdrop-blur-sm">
                         <Download className="w-4 h-4" /> Export
                     </button>
-                    <button
-                        onClick={() => handleExport('naac')}
-                        disabled={exporting}
-                        className="btn-accent flex items-center gap-2 text-xs sm:text-sm"
-                    >
+                    <button onClick={() => handleExport('naac')} disabled={exporting}
+                        className="flex items-center gap-2 bg-white text-primary-700 hover:bg-orange-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition-all">
                         <FileSpreadsheet className="w-4 h-4" /> NAAC
                     </button>
                 </div>
             </div>
 
-            {/* Filters */}
-            <div className="card p-4 mb-6">
+            {/* ── Filters ── */}
+            <div className="card p-4" data-aos="fade-up">
                 <div className="flex flex-wrap gap-3 items-center">
+                    <Filter className="w-4 h-4 text-primary-500 shrink-0" />
                     {user.role === 'admin' && (
-                        <select
-                            value={filters.department}
+                        <select value={filters.department}
                             onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-                            className="select-field w-full sm:w-auto sm:min-w-[180px]"
-                        >
+                            className="select-field w-full sm:w-auto sm:min-w-[180px]">
                             <option value="">All Departments</option>
-                            {departments.map((d) => (
-                                <option key={d} value={d}>{d}</option>
-                            ))}
+                            {departments.map((d) => <option key={d} value={d}>{d}</option>)}
                         </select>
                     )}
-                    <select
-                        value={filters.academicYear}
+                    <select value={filters.academicYear}
                         onChange={(e) => setFilters({ ...filters, academicYear: e.target.value })}
-                        className="select-field w-full sm:w-auto sm:min-w-[160px]"
-                    >
+                        className="select-field w-full sm:w-auto sm:min-w-[160px]">
                         <option value="">All Years</option>
-                        {academicYears.map((y) => (
-                            <option key={y} value={y}>{y}</option>
-                        ))}
+                        {academicYears.map((y) => <option key={y} value={y}>{y}</option>)}
                     </select>
                     {(filters.department || filters.academicYear) && (
-                        <button
-                            onClick={() => setFilters({ department: '', academicYear: '' })}
-                            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-                        >
+                        <button onClick={() => setFilters({ department: '', academicYear: '' })}
+                            className="text-sm text-primary-600 hover:text-primary-800 font-semibold px-3 py-1.5 bg-primary-50 border border-primary-200 rounded-lg transition-colors">
                             Clear Filters
                         </button>
                     )}
@@ -157,92 +157,90 @@ const Dashboard = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64">
-                    <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+                <div className="flex flex-col items-center justify-center h-64 gap-3">
+                    <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
+                    <p className="text-dark-400 text-sm">Loading dashboard…</p>
                 </div>
             ) : (
                 <>
-                    {/* Stats Cards */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4 mb-6">
-                        <StatCard title="Faculty" value={stats?.totalFaculty || 0} icon={Users} color="primary" linkTo="/faculty" />
-                        <StatCard title="Publications" value={stats?.totalPublications || 0} icon={BookOpen} color="emerald" linkTo="/explore?tab=publications" />
-                        <StatCard title="Patents" value={stats?.totalPatents || 0} icon={Lightbulb} color="amber" linkTo="/explore?tab=patents" />
-                        <StatCard title="Workshops" value={stats?.totalWorkshops || 0} icon={Award} color="rose" linkTo="/explore?tab=workshops" />
-                        <StatCard title="Seminars" value={stats?.totalSeminars || 0} icon={Mic} color="violet" linkTo="/explore?tab=seminars" />
-                        <StatCard title="Certifications" value={stats?.totalCertifications || 0} icon={FileCheck} color="sky" linkTo="/explore?tab=certifications" />
+                    {/* ── Stat cards ── */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+                        <StatCard title="Faculty"       value={stats?.totalFaculty       || 0} icon={Users}     color="orange"  linkTo="/faculty"                 delay={0}   />
+                        <StatCard title="Publications"  value={stats?.totalPublications  || 0} icon={BookOpen}  color="emerald" linkTo="/explore?tab=publications" delay={60}  />
+                        <StatCard title="Patents"       value={stats?.totalPatents       || 0} icon={Lightbulb} color="amber"   linkTo="/explore?tab=patents"      delay={120} />
+                        <StatCard title="Workshops"     value={stats?.totalWorkshops     || 0} icon={Award}     color="rose"    linkTo="/explore?tab=workshops"    delay={180} />
+                        <StatCard title="Seminars"      value={stats?.totalSeminars      || 0} icon={Mic}       color="violet"  linkTo="/explore?tab=seminars"     delay={240} />
+                        <StatCard title="Certifications" value={stats?.totalCertifications|| 0} icon={FileCheck} color="sky"     linkTo="/explore?tab=certifications" delay={300} />
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                        {/* Department Chart */}
-                        <div className="card p-5">
-                            <h2 className="text-lg font-semibold text-primary-800 mb-4">Department-wise Research Output</h2>
+                    {/* ── Charts row ── */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        {/* Dept chart */}
+                        <div className="card p-5" data-aos="fade-up">
+                            <div className="flex items-center gap-2 mb-4">
+                                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                                    <TrendingUp className="w-3.5 h-3.5 text-white" />
+                                </div>
+                                <h2 className="font-semibold text-dark-900">Department-wise Output</h2>
+                            </div>
                             <DepartmentChart data={chartData} />
                         </div>
 
-                        {/* Year Trend Chart */}
-                        <div className="card p-5">
+                        {/* Trend chart */}
+                        <div className="card p-5" data-aos="fade-up" data-aos-delay="80">
                             <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-5 h-5 text-accent-500" />
-                                <h2 className="text-lg font-semibold text-primary-800">Year-over-Year Trends</h2>
+                                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
+                                    <TrendingUp className="w-3.5 h-3.5 text-white" />
+                                </div>
+                                <h2 className="font-semibold text-dark-900">Year-over-Year Trends</h2>
                             </div>
                             {trendData.length > 0 ? (
-                                <ResponsiveContainer width="100%" height={280}>
-                                    <LineChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 5 }}>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                        <XAxis dataKey="year" tick={{ fontSize: 12, fill: '#64748b' }} />
-                                        <YAxis tick={{ fontSize: 12, fill: '#64748b' }} />
-                                        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', fontSize: '13px' }} />
-                                        <Legend wrapperStyle={{ fontSize: '13px' }} />
-                                        <Line type="monotone" dataKey="publications" stroke="#1e3a8a" strokeWidth={2} dot={{ r: 4 }} name="Publications" />
-                                        <Line type="monotone" dataKey="patents" stroke="#f97316" strokeWidth={2} dot={{ r: 4 }} name="Patents" />
-                                        <Line type="monotone" dataKey="workshops" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} name="Workshops" />
-                                        <Line type="monotone" dataKey="seminars" stroke="#8b5cf6" strokeWidth={2} dot={{ r: 4 }} name="Seminars" />
-                                    </LineChart>
-                                </ResponsiveContainer>
+                                <div style={{ height: '280px' }}>
+                                    <Line data={lineData} options={lineOptions} />
+                                </div>
                             ) : (
                                 <div className="flex items-center justify-center h-64 text-dark-400 text-sm">No trend data available</div>
                             )}
                         </div>
                     </div>
 
-                    {/* Top Contributors */}
-                    <div className="card p-5">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Trophy className="w-5 h-5 text-accent-500" />
-                            <h2 className="text-lg font-semibold text-primary-800">Top Contributors</h2>
+                    {/* ── Top Contributors ── */}
+                    <div className="card overflow-hidden" data-aos="fade-up">
+                        <div className="flex items-center gap-2 px-5 py-4 border-b border-dark-100">
+                            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
+                                <Trophy className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <h2 className="font-semibold text-dark-900">Top Contributors</h2>
                         </div>
                         {topContributors.length > 0 ? (
-                            <div className="overflow-x-auto -mx-5">
+                            <div className="overflow-x-auto">
                                 <table className="w-full text-sm min-w-[600px]">
                                     <thead>
-                                        <tr className="bg-primary-800">
-                                            <th className="text-left py-3 px-4 font-medium text-white">Rank</th>
-                                            <th className="text-left py-3 px-4 font-medium text-white">Faculty Name</th>
-                                            <th className="text-left py-3 px-4 font-medium text-white">Department</th>
-                                            <th className="text-center py-3 px-4 font-medium text-white">Publications</th>
-                                            <th className="text-center py-3 px-4 font-medium text-white">Patents</th>
-                                            <th className="text-center py-3 px-4 font-medium text-white">Workshops</th>
-                                            <th className="text-center py-3 px-4 font-medium text-white">Seminars</th>
-                                            <th className="text-center py-3 px-4 font-medium text-white">Total</th>
+                                        <tr style={{ background: 'linear-gradient(135deg,#c2410c,#ea580c)' }}>
+                                            {['Rank','Faculty Name','Department','Publications','Patents','Workshops','Seminars','Total'].map(h => (
+                                                <th key={h} className={`py-3 px-4 font-semibold text-white ${['Publications','Patents','Workshops','Seminars','Total'].includes(h) ? 'text-center' : 'text-left'}`}>{h}</th>
+                                            ))}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {topContributors.map((c, i) => (
-                                            <tr key={c._id} className="border-t border-dark-100 hover:bg-accent-50">
+                                            <tr key={c._id} className="border-t border-dark-100 hover:bg-primary-50/40 transition-colors">
                                                 <td className="py-3 px-4">
-                                                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${i === 0 ? 'bg-amber-100 text-amber-700' : i === 1 ? 'bg-gray-100 text-gray-700' : i === 2 ? 'bg-orange-100 text-orange-700' : 'bg-dark-50 text-dark-500'
-                                                        }`}>
+                                                    <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold
+                                                        ${i === 0 ? 'bg-yellow-100 text-yellow-700'
+                                                        : i === 1 ? 'bg-slate-100 text-slate-600'
+                                                        : i === 2 ? 'bg-amber-100 text-amber-700'
+                                                        : 'bg-dark-50 text-dark-500'}`}>
                                                         {i + 1}
                                                     </span>
                                                 </td>
-                                                <td className="py-3 px-4 font-medium text-dark-900">{c.name}</td>
-                                                <td className="py-3 px-4 text-dark-600">{c.department}</td>
-                                                <td className="py-3 px-4 text-center text-primary-800 font-semibold">{c.publications}</td>
-                                                <td className="py-3 px-4 text-center text-primary-800 font-semibold">{c.patents}</td>
-                                                <td className="py-3 px-4 text-center text-primary-800 font-semibold">{c.workshops}</td>
-                                                <td className="py-3 px-4 text-center text-primary-800 font-semibold">{c.seminars}</td>
+                                                <td className="py-3 px-4 font-semibold text-dark-900">{c.name}</td>
+                                                <td className="py-3 px-4 text-dark-500">{c.department}</td>
+                                                {['publications','patents','workshops','seminars'].map(k => (
+                                                    <td key={k} className="py-3 px-4 text-center font-semibold text-primary-700">{c[k]}</td>
+                                                ))}
                                                 <td className="py-3 px-4 text-center">
-                                                    <span className="inline-flex items-center justify-center bg-accent-100 text-accent-700 font-bold text-sm px-3 py-1 rounded-full">
+                                                    <span className="inline-flex items-center justify-center bg-gradient-to-r from-primary-500 to-primary-600 text-white font-bold text-xs px-3 py-1 rounded-full shadow-sm">
                                                         {c.total}
                                                     </span>
                                                 </td>
@@ -252,12 +250,12 @@ const Dashboard = () => {
                                 </table>
                             </div>
                         ) : (
-                            <p className="text-dark-400 text-sm text-center py-6">No contributors data available</p>
+                            <p className="text-dark-400 text-sm text-center py-8">No contributor data available</p>
                         )}
                     </div>
 
-                    {/* Rankings & Domain Analytics */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                    {/* ── Rankings & Domain ── */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                         <RankingsPanel />
                         <DomainChart />
                     </div>

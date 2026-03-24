@@ -17,6 +17,7 @@ const CreateAccount = () => {
         email: '',
         password: '',
         role: 'faculty',
+        designation: 'Assistant Professor',
         department: isHod ? currentUser.department : '',
         mobileNumber: '',
         domain: '',
@@ -75,8 +76,8 @@ const CreateAccount = () => {
     };
 
     const downloadTemplate = () => {
-        const headers = ['Name', 'EmployeeId', 'Email', 'Password', 'Role', 'Department', 'MobileNumber', 'Domain', 'OfficialEmail', 'JoiningDate', 'Address'];
-        const sampleRow = ['John Doe', 'EMP001', 'john@example.com', 'password123', 'faculty', 'CSE', '9876543210', 'Machine Learning', 'john.official@college.edu', '2024-01-15', '123 Main St'];
+        const headers = ['Name', 'EmployeeId', 'Email', 'Password', 'Role', 'Department', 'Designation', 'MobileNumber', 'Domain', 'OfficialEmail', 'JoiningDate', 'Address'];
+        const sampleRow = ['John Doe', 'EMP001', 'john@example.com', 'password123', 'faculty', 'CSE', 'Assistant Professor', '9876543210', 'Machine Learning', 'john.official@college.edu', '2024-01-15', '123 Main St'];
         const csvContent = [headers.join(','), sampleRow.join(',')].join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
@@ -142,6 +143,19 @@ const CreateAccount = () => {
                                         <option value="hod">HOD</option>
                                     </select>
                                 )}
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-dark-700 mb-1.5">Designation *</label>
+                                <select name="designation" value={form.designation} onChange={handleChange} className="select-field">
+                                    <option value="Assistant Professor">Assistant Professor</option>
+                                    <option value="Associate Professor">Associate Professor</option>
+                                    <option value="Head of the Department">Head of the Department</option>
+                                    <option value="Principal">Principal</option>
+                                    <option value="Dean Planning">Dean Planning</option>
+                                    <option value="Dean Internal Affairs">Dean Internal Affairs</option>
+                                    <option value="Dean Placements">Dean Placements</option>
+                                    <option value="Dean Academics">Dean Academics</option>
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-dark-700 mb-1.5">Department *</label>
@@ -215,7 +229,8 @@ const CreateAccount = () => {
                                     <p className="text-sm font-semibold text-blue-800">Download Template</p>
                                     <p className="text-xs text-blue-600 mt-0.5 mb-2">
                                         Required columns: <strong>Name, EmployeeId, Email, Password, Department</strong><br />
-                                        Optional: Role, MobileNumber, Domain, OfficialEmail, JoiningDate, Address
+                                        Optional: Role, Designation, MobileNumber, Domain, OfficialEmail, JoiningDate, Address<br />
+                                        <span className="text-blue-500">Designation options: Assistant Professor, Associate Professor, Head of the Department, Principal, Dean Planning, Dean Internal Affairs, Dean Placements, Dean Academics</span>
                                     </p>
                                     <button onClick={downloadTemplate} className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition-all">
                                         <Download className="w-3.5 h-3.5" /> Download CSV Template

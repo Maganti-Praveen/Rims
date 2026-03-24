@@ -5,7 +5,10 @@ import { useNavigate } from 'react-router-dom';
 
 const ReminderBanner = () => {
     const [reminders, setReminders] = useState([]);
-    const [dismissed, setDismissed] = useState([]);
+    const [dismissed, setDismissed] = useState(() => {
+        try { return JSON.parse(sessionStorage.getItem('dismissedReminders') || '[]'); }
+        catch { return []; }
+    });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -25,7 +28,7 @@ const ReminderBanner = () => {
 
     const severityConfig = {
         warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800', icon: AlertTriangle, iconColor: 'text-amber-500' },
-        info: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-800', icon: Info, iconColor: 'text-blue-500' },
+        info:    { bg: 'bg-primary-50', border: 'border-primary-200', text: 'text-primary-800', icon: Bell, iconColor: 'text-primary-500' },
         success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', icon: CheckCircle, iconColor: 'text-emerald-500' },
     };
 
@@ -48,7 +51,12 @@ const ReminderBanner = () => {
                         <div className="flex items-center gap-2 flex-shrink-0">
                             {r.link && <ChevronRight className={`w-4 h-4 ${config.iconColor}`} />}
                             <button
-                                onClick={(e) => { e.stopPropagation(); setDismissed([...dismissed, r.type]); }}
+                                onClick={(e) => {
+                                e.stopPropagation();
+                                const next = [...dismissed, r.type];
+                                setDismissed(next);
+                                sessionStorage.setItem('dismissedReminders', JSON.stringify(next));
+                            }}
                                 className="text-xs text-dark-400 hover:text-dark-600 px-1"
                             >
                                 ✕

@@ -79,7 +79,7 @@ const NotificationBell = () => {
         <div ref={wrapperRef} className="relative">
             <button
                 onClick={() => setOpen(!open)}
-                className="relative w-9 h-9 rounded-lg flex items-center justify-center text-primary-200 hover:bg-white/10 hover:text-white transition-colors"
+                className="relative w-9 h-9 rounded-xl flex items-center justify-center text-dark-400 hover:bg-primary-50 hover:text-primary-600 transition-colors"
             >
                 <Bell className="w-5 h-5" />
                 {unreadCount > 0 && (
@@ -90,7 +90,7 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className="absolute bottom-full mb-2 left-0 bg-white rounded-xl shadow-xl border border-dark-100 z-50 w-80 max-h-96 overflow-hidden">
+                <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-xl border border-dark-100 z-50 w-80 max-h-96 overflow-hidden">
                     <div className="flex items-center justify-between p-3 border-b border-dark-100">
                         <h3 className="font-semibold text-dark-900 text-sm">Notifications</h3>
                         {unreadCount > 0 && (

@@ -15,7 +15,7 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 exports.register = async (req, res, next) => {
     try {
-        const { name, employeeId, email, password, role, department, joiningDate, mobileNumber, domain, officialEmail, address } = req.body;
+        const { name, employeeId, email, password, role, department, joiningDate, mobileNumber, domain, officialEmail, address, designation } = req.body;
 
         // HOD can only create faculty in their own department
         if (req.user.role === 'hod') {
@@ -34,7 +34,7 @@ exports.register = async (req, res, next) => {
         }
 
         const user = await User.create({
-            name, employeeId, email, password, role, department, joiningDate, mobileNumber, domain, officialEmail, address,
+            name, employeeId, email, password, role, department, joiningDate, mobileNumber, domain, officialEmail, address, designation,
         });
 
         await logActivity({
@@ -128,6 +128,7 @@ exports.bulkRegister = async (req, res, next) => {
                 else if (k === 'officialemail') data.officialEmail = String(v).trim();
                 else if (k === 'joiningdate') data.joiningDate = parseDate(v);
                 else if (k === 'address') data.address = String(v).trim();
+                else if (k === 'designation') data.designation = String(v).trim();
             });
 
             if (!data.role || !['faculty', 'hod'].includes(data.role)) data.role = 'faculty';
