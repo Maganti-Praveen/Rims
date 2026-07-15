@@ -19,6 +19,16 @@ const certificationSchema = new mongoose.Schema({
     date: {
         type: Date,
     },
+    enrollDate: {
+        type: Date,
+    },
+    issuedDate: {
+        type: Date,
+    },
+    certificateType: {
+        type: String,
+        enum: ['NPTEL', 'SWAYAM', 'Coursera', 'Udemy', 'edX', 'AWS', 'Oracle', 'Cisco', 'Google', 'Other'],
+    },
     credentialId: {
         type: String,
         trim: true,

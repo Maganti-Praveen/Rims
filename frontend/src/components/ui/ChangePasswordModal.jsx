@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import API from '../../api/axios';
-import { Lock, Eye, EyeOff, X, Check } from 'lucide-react';
+import { Lock, Eye, EyeSlash, X, Check } from '@phosphor-icons/react';
 
 const ChangePasswordModal = ({ isOpen, onClose }) => {
     const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
@@ -83,7 +83,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                     required
                                 />
                                 <button type="button" onClick={() => setShowCurrent(!showCurrent)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                                    {showCurrent ? <EyeOff className="w-4 h-4 text-dark-400" /> : <Eye className="w-4 h-4 text-dark-400" />}
+                                    {showCurrent ? <EyeSlash className="w-4 h-4 text-dark-400" /> : <Eye className="w-4 h-4 text-dark-400" />}
                                 </button>
                             </div>
                         </div>
@@ -100,7 +100,7 @@ const ChangePasswordModal = ({ isOpen, onClose }) => {
                                     minLength={6}
                                 />
                                 <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2">
-                                    {showNew ? <EyeOff className="w-4 h-4 text-dark-400" /> : <Eye className="w-4 h-4 text-dark-400" />}
+                                    {showNew ? <EyeSlash className="w-4 h-4 text-dark-400" /> : <Eye className="w-4 h-4 text-dark-400" />}
                                 </button>
                             </div>
                         </div>

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
-import { Search, Download, Eye, Trash2, CheckSquare, Square, XCircle, KeyRound } from 'lucide-react';
+import { MagnifyingGlass, DownloadSimple, Eye, Trash, CheckSquare, Square, XCircle, Key } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 import ConfirmDialog from '../components/ConfirmDialog';
 import ResetPasswordModal from '../components/ui/ResetPasswordModal';
@@ -146,7 +146,7 @@ const FacultyList = () => {
                     <p className="text-dark-500 text-sm mt-1">{faculty.length} members found</p>
                 </div>
                 <button onClick={handleExportExcel} className="btn-secondary flex items-center gap-2">
-                    <Download className="w-4 h-4" /> Export Excel
+                    <DownloadSimple className="w-4 h-4" /> Export Excel
                 </button>
             </div>
 
@@ -154,7 +154,7 @@ const FacultyList = () => {
             <div className="card p-4 mb-6">
                 <div className="flex flex-wrap gap-3 items-center">
                     <div className="relative flex-1 min-w-[200px]">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+                        <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
                         <input
                             type="text"
                             placeholder="Search by name..."
@@ -205,7 +205,7 @@ const FacultyList = () => {
                         onClick={handleBulkDelete}
                         className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash className="w-4 h-4" />
                         Delete Selected
                     </button>
                 </div>
@@ -292,7 +292,7 @@ const FacultyList = () => {
                                                         className="p-2 text-dark-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
                                                         title="Reset Password"
                                                     >
-                                                        <KeyRound className="w-4 h-4" />
+                                                        <Key className="w-4 h-4" />
                                                     </button>
                                                 )}
                                                 {canDelete && (
@@ -300,7 +300,7 @@ const FacultyList = () => {
                                                         onClick={() => handleDelete(f._id)}
                                                         className="p-2 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                                                     >
-                                                        <Trash2 className="w-4 h-4" />
+                                                        <Trash className="w-4 h-4" />
                                                     </button>
                                                 )}
                                             </div>
@@ -369,23 +369,23 @@ const FacultyList = () => {
                                         >
                                             <Eye className="w-5 h-5" />
                                         </Link>
-                                        {canDelete && (
-                                            <button
-                                                onClick={() => setResetTarget(f)}
-                                                className="p-2 text-dark-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-                                                title="Reset Password"
-                                            >
-                                                <KeyRound className="w-5 h-5" />
-                                            </button>
-                                        )}
-                                        {canDelete && (
-                                            <button
-                                                onClick={() => handleDelete(f._id)}
-                                                className="p-2 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                                            >
-                                                <Trash2 className="w-5 h-5" />
-                                            </button>
-                                        )}
+                                         {canDelete && (
+                                             <button
+                                                 onClick={() => setResetTarget(f)}
+                                                 className="p-2 text-dark-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                                                 title="Reset Password"
+                                             >
+                                                 <Key className="w-5 h-5" />
+                                             </button>
+                                         )}
+                                         {canDelete && (
+                                             <button
+                                                 onClick={() => handleDelete(f._id)}
+                                                 className="p-2 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                             >
+                                                 <Trash className="w-5 h-5" />
+                                             </button>
+                                         )}
                                     </div>
                                 </div>
                             </div>

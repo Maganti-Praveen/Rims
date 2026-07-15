@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { Bell, Check, CheckCheck } from 'lucide-react';
+import { Bell, Check, Checks } from '@phosphor-icons/react';
 
 const NotificationBell = () => {
     const [notifications, setNotifications] = useState([]);
@@ -95,7 +95,7 @@ const NotificationBell = () => {
                         <h3 className="font-semibold text-dark-900 text-sm">Notifications</h3>
                         {unreadCount > 0 && (
                             <button onClick={markAllAsRead} className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1">
-                                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+                                <Checks className="w-3.5 h-3.5" /> Mark all read
                             </button>
                         )}
                     </div>

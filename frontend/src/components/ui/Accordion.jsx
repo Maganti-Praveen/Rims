@@ -1,4 +1,4 @@
-import { ChevronDown } from 'lucide-react';
+import { CaretDown } from '@phosphor-icons/react';
 import { useState } from 'react';
 
 const Accordion = ({ title, count, icon: Icon, children, defaultOpen = false }) => {
@@ -17,7 +17,7 @@ const Accordion = ({ title, count, icon: Icon, children, defaultOpen = false }) 
                         <span className="badge-primary">{count}</span>
                     )}
                 </div>
-                <ChevronDown
+                <CaretDown
                     className={`w-5 h-5 transition-transform duration-300 ${isOpen ? 'rotate-180 text-accent-500' : 'text-dark-400'}`}
                 />
             </button>

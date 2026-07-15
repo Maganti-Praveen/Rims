@@ -1,9 +1,11 @@
 const User = require('../models/User');
 const Publication = require('../models/Publication');
+const Book = require('../models/Book');
 const Patent = require('../models/Patent');
 const Workshop = require('../models/Workshop');
 const Seminar = require('../models/Seminar');
 const Certification = require('../models/Certification');
+const AcademicYear = require('../models/AcademicYear');
 
 // @desc    Get dashboard stats
 // @route   GET /api/dashboard/stats
@@ -28,9 +30,10 @@ exports.getStats = async (req, res, next) => {
         if (facultyFilter) entryQuery.facultyId = facultyFilter;
         if (academicYear) entryQuery.academicYear = academicYear;
 
-        const [totalFaculty, totalPublications, totalPatents, totalWorkshops, totalSeminars, totalCertifications] = await Promise.all([
+        const [totalFaculty, totalPublications, totalBooks, totalPatents, totalWorkshops, totalSeminars, totalCertifications] = await Promise.all([
             User.countDocuments({ ...facultyQuery, role: { $in: ['faculty', 'hod'] } }),
             Publication.countDocuments(entryQuery),
+            Book.countDocuments(entryQuery),
             Patent.countDocuments(entryQuery),
             Workshop.countDocuments(entryQuery),
             Seminar.countDocuments(entryQuery),
@@ -42,6 +45,7 @@ exports.getStats = async (req, res, next) => {
             data: {
                 totalFaculty,
                 totalPublications,
+                totalBooks,
                 totalPatents,
                 totalWorkshops,
                 totalSeminars,
@@ -53,7 +57,7 @@ exports.getStats = async (req, res, next) => {
     }
 };
 
-// @desc    Get department-wise publication chart data
+// @desc    Get department-wise chart data
 // @route   GET /api/dashboard/chart
 exports.getChartData = async (req, res, next) => {
     try {
@@ -69,25 +73,23 @@ exports.getChartData = async (req, res, next) => {
         const chartData = await Promise.all(
             departments.map(async (dept) => {
                 const facultyIds = await User.find({ department: dept }).distinct('_id');
-                let pubQuery = { facultyId: { $in: facultyIds } };
-                let patQuery = { facultyId: { $in: facultyIds } };
-                let wsQuery = { facultyId: { $in: facultyIds } };
+                let q = { facultyId: { $in: facultyIds } };
 
                 if (academicYear) {
-                    pubQuery.academicYear = academicYear;
-                    patQuery.academicYear = academicYear;
-                    wsQuery.academicYear = academicYear;
+                    q.academicYear = academicYear;
                 }
 
-                const [publications, patents, workshops] = await Promise.all([
-                    Publication.countDocuments(pubQuery),
-                    Patent.countDocuments(patQuery),
-                    Workshop.countDocuments(wsQuery),
+                const [publications, books, patents, workshops] = await Promise.all([
+                    Publication.countDocuments(q),
+                    Book.countDocuments(q),
+                    Patent.countDocuments(q),
+                    Workshop.countDocuments(q),
                 ]);
 
                 return {
                     department: dept,
                     publications,
+                    books,
                     patents,
                     workshops,
                 };
@@ -99,8 +101,6 @@ exports.getChartData = async (req, res, next) => {
         next(error);
     }
 };
-
-const AcademicYear = require('../models/AcademicYear');
 
 // @desc    Get year-over-year trend data
 // @route   GET /api/dashboard/trends
@@ -118,13 +118,14 @@ exports.getYearTrend = async (req, res, next) => {
         const trends = await Promise.all(
             years.map(async (year) => {
                 const query = { ...facultyFilter, academicYear: year };
-                const [publications, patents, workshops, seminars] = await Promise.all([
+                const [publications, books, patents, workshops, seminars] = await Promise.all([
                     Publication.countDocuments(query),
+                    Book.countDocuments(query),
                     Patent.countDocuments(query),
                     Workshop.countDocuments(query),
                     Seminar.countDocuments(query),
                 ]);
-                return { year, publications, patents, workshops, seminars };
+                return { year, publications, books, patents, workshops, seminars };
             })
         );
 
@@ -147,8 +148,9 @@ exports.getTopContributors = async (req, res, next) => {
 
         const contributors = await Promise.all(
             faculty.map(async (f) => {
-                const [pubs, pats, ws, sems] = await Promise.all([
+                const [pubs, books, pats, ws, sems] = await Promise.all([
                     Publication.countDocuments({ facultyId: f._id }),
+                    Book.countDocuments({ facultyId: f._id }),
                     Patent.countDocuments({ facultyId: f._id }),
                     Workshop.countDocuments({ facultyId: f._id }),
                     Seminar.countDocuments({ facultyId: f._id }),
@@ -158,10 +160,11 @@ exports.getTopContributors = async (req, res, next) => {
                     name: f.name,
                     department: f.department,
                     publications: pubs,
+                    books,
                     patents: pats,
                     workshops: ws,
                     seminars: sems,
-                    total: pubs + pats + ws + sems,
+                    total: pubs + books + pats + ws + sems,
                 };
             })
         );
@@ -185,14 +188,24 @@ exports.compareFaculty = async (req, res, next) => {
         const getStats = async (id) => {
             const user = await User.findById(id).select('name department email').lean();
             if (!user) return null;
-            const [pubs, pats, ws, sems, certs] = await Promise.all([
+            const [pubs, books, pats, ws, sems, certs] = await Promise.all([
                 Publication.countDocuments({ facultyId: id }),
+                Book.countDocuments({ facultyId: id }),
                 Patent.countDocuments({ facultyId: id }),
                 Workshop.countDocuments({ facultyId: id }),
                 Seminar.countDocuments({ facultyId: id }),
                 Certification.countDocuments({ facultyId: id }),
             ]);
-            return { ...user, publications: pubs, patents: pats, workshops: ws, seminars: sems, certifications: certs, total: pubs + pats + ws + sems + certs };
+            return {
+                ...user,
+                publications: pubs,
+                books,
+                patents: pats,
+                workshops: ws,
+                seminars: sems,
+                certifications: certs,
+                total: pubs + books + pats + ws + sems + certs
+            };
         };
 
         const [f1, f2] = await Promise.all([getStats(faculty1), getStats(faculty2)]);
@@ -220,16 +233,28 @@ exports.compareDept = async (req, res, next) => {
             const facultyIds = await User.find({ department: dept, role: { $in: ['faculty', 'hod'] } }).distinct('_id');
             const facultyCount = facultyIds.length;
             const q = { facultyId: { $in: facultyIds } };
-            const [pubs, pats, ws, sems, certs] = await Promise.all([
+            const [pubs, books, pats, ws, sems, certs] = await Promise.all([
                 Publication.countDocuments(q),
+                Book.countDocuments(q),
                 Patent.countDocuments(q),
                 Workshop.countDocuments(q),
                 Seminar.countDocuments(q),
                 Certification.countDocuments(q),
             ]);
-            const total = pubs + pats + ws + sems + certs;
+            const total = pubs + books + pats + ws + sems + certs;
             const perFaculty = facultyCount > 0 ? (total / facultyCount).toFixed(1) : '0';
-            return { department: dept, facultyCount, publications: pubs, patents: pats, workshops: ws, seminars: sems, certifications: certs, total, perFaculty };
+            return {
+                department: dept,
+                facultyCount,
+                publications: pubs,
+                books,
+                patents: pats,
+                workshops: ws,
+                seminars: sems,
+                certifications: certs,
+                total,
+                perFaculty
+            };
         };
 
         const [d1, d2] = await Promise.all([getDeptStats(dept1), getDeptStats(dept2)]);
@@ -238,4 +263,3 @@ exports.compareDept = async (req, res, next) => {
         next(error);
     }
 };
-

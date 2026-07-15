@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../../api/axios';
-import { Layers } from 'lucide-react';
+import { Stack } from '@phosphor-icons/react';
 import {
     Chart as ChartJS, ArcElement, Tooltip, Legend
 } from 'chart.js';
@@ -34,7 +34,7 @@ const DomainChart = () => {
             <div className="card p-6" data-aos="fade-up">
                 <div className="flex items-center gap-2 mb-3">
                     <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                        <Layers className="w-3.5 h-3.5 text-white" />
+                        <Stack className="w-3.5 h-3.5 text-white" />
                     </div>
                     <h3 className="text-sm font-bold text-dark-800">Research Domains</h3>
                 </div>
@@ -87,7 +87,7 @@ const DomainChart = () => {
             {/* Header */}
             <div className="flex items-center gap-2 mb-4">
                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                    <Layers className="w-3.5 h-3.5 text-white" />
+                    <Stack className="w-3.5 h-3.5 text-white" />
                 </div>
                 <h3 className="text-sm font-bold text-dark-800">Research Domains</h3>
                 <span className="ml-auto text-xs text-dark-400 font-medium">{total} total</span>

@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Education = require('../models/Education');
 const Certification = require('../models/Certification');
 const Publication = require('../models/Publication');
+const Book = require('../models/Book');
 const Patent = require('../models/Patent');
 const Workshop = require('../models/Workshop');
 const Seminar = require('../models/Seminar');
@@ -27,8 +28,9 @@ exports.exportExcel = async (req, res, next) => {
         let entryQuery = { facultyId: { $in: facultyIds } };
         if (academicYear) entryQuery.academicYear = academicYear;
 
-        const [publications, patents, workshops] = await Promise.all([
+        const [publications, books, patents, workshops] = await Promise.all([
             Publication.find(entryQuery),
+            Book.find(entryQuery),
             Patent.find(entryQuery),
             Workshop.find(entryQuery),
         ]);
@@ -44,6 +46,7 @@ exports.exportExcel = async (req, res, next) => {
             { header: 'Employee ID', key: 'employeeId', width: 15 },
             { header: 'Department', key: 'department', width: 15 },
             { header: 'Publications', key: 'publications', width: 15 },
+            { header: 'Books & Chapters', key: 'books', width: 18 },
             { header: 'Patents', key: 'patents', width: 12 },
             { header: 'Workshops', key: 'workshops', width: 12 },
             { header: 'Academic Year', key: 'academicYear', width: 15 },
@@ -54,6 +57,7 @@ exports.exportExcel = async (req, res, next) => {
 
         faculty.forEach((f) => {
             const pubCount = publications.filter((p) => p.facultyId.toString() === f._id.toString()).length;
+            const bookCount = books.filter((b) => b.facultyId.toString() === f._id.toString()).length;
             const patCount = patents.filter((p) => p.facultyId.toString() === f._id.toString()).length;
             const wsCount = workshops.filter((w) => w.facultyId.toString() === f._id.toString()).length;
 
@@ -62,6 +66,7 @@ exports.exportExcel = async (req, res, next) => {
                 employeeId: f.employeeId,
                 department: f.department,
                 publications: pubCount,
+                books: bookCount,
                 patents: patCount,
                 workshops: wsCount,
                 academicYear: academicYear || 'All',
@@ -90,6 +95,33 @@ exports.exportExcel = async (req, res, next) => {
                 type: p.publicationType || '',
                 indexed: p.indexedType || '',
                 year: p.academicYear || '',
+            });
+        });
+
+        // Books & Chapters Sheet
+        const bookSheet = workbook.addWorksheet('Books & Chapters');
+        bookSheet.columns = [
+            { header: 'Faculty', key: 'faculty', width: 25 },
+            { header: 'Title', key: 'title', width: 40 },
+            { header: 'Publisher / Journal', key: 'journal', width: 30 },
+            { header: 'Type', key: 'type', width: 15 },
+            { header: 'ISBN / ISSN', key: 'isbn', width: 18 },
+            { header: 'Indexed', key: 'indexed', width: 12 },
+            { header: 'Year', key: 'year', width: 12 },
+        ];
+        bookSheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        bookSheet.getRow(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0F3460' } };
+
+        books.forEach((b) => {
+            const fac = faculty.find((f) => f._id.toString() === b.facultyId.toString());
+            bookSheet.addRow({
+                faculty: fac ? fac.name : 'Unknown',
+                title: b.title,
+                journal: b.journalName || '',
+                type: b.publicationType || '',
+                isbn: b.issn || '',
+                indexed: b.indexedType || '',
+                year: b.academicYear || '',
             });
         });
 
@@ -138,10 +170,11 @@ exports.exportPDF = async (req, res, next) => {
         const { academicYear } = req.query;   // optional year filter
         const yearQuery = academicYear ? { facultyId: user._id, academicYear } : { facultyId: user._id };
 
-        const [education, certifications, publications, patents, workshops, seminars] = await Promise.all([
+        const [education, certifications, publications, books, patents, workshops, seminars] = await Promise.all([
             Education.find({ facultyId: user._id }),              // always all
             Certification.find({ facultyId: user._id }),          // always all
             Publication.find(yearQuery),
+            Book.find(yearQuery),
             Patent.find(yearQuery),
             Workshop.find(yearQuery),
             Seminar.find(yearQuery),
@@ -374,9 +407,10 @@ exports.exportPDF = async (req, res, next) => {
 
         // â”€â”€ Stats strip â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const sty = doc.y;
-        const sw = CW / 6;
+        const sw = CW / 7;
         const statData = [
             ['Publications', publications.length],
+            ['Books/Chapters', books.length],
             ['Patents', patents.length],
             ['Workshops', workshops.length],
             ['Seminars', seminars.length],
@@ -388,7 +422,7 @@ exports.exportPDF = async (req, res, next) => {
             doc.rect(sx, sty, sw, 34).fill(i % 2 === 0 ? NAVY : NAVY2);
             doc.fillColor(WHITE).font('Helvetica-Bold').fontSize(15)
                 .text(String(cnt), sx, sty + 3, { width: sw, align: 'center', lineBreak: false });
-            doc.font('Helvetica').fontSize(7).fillColor(BLUE_LT)
+            doc.font('Helvetica').fontSize(6.5).fillColor(BLUE_LT)
                 .text(lbl, sx, sty + 21, { width: sw, align: 'center', lineBreak: false });
         });
         doc.y = sty + 42;
@@ -440,18 +474,18 @@ exports.exportPDF = async (req, res, next) => {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No education records added.', L + 4, doc.y); doc.moveDown(0.4);
         }
 
-        // â”€â”€ Certifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Certifications ──
         section('Certifications');
         if (certifications.length > 0) {
-            const w = [180, 135, 85, 115];
+            const w = [135, 95, 75, 70, 70, 70];
             tblReset();
-            tblRow(['Title', 'Issued By', 'Date', 'Credential ID'], w, true);
-            certifications.forEach(c => tblRow([c.title, c.issuedBy, fmtDate(c.date), c.credentialId], w));
+            tblRow(['Title', 'Issued By', 'Type', 'Enroll Date', 'Issued Date', 'Credential ID'], w, true);
+            certifications.forEach(c => tblRow([c.title, c.issuedBy, c.certificateType || '-', fmtDate(c.enrollDate), fmtDate(c.issuedDate || c.date), c.credentialId || '-'], w));
         } else {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No certifications added.', L + 4, doc.y); doc.moveDown(0.4);
         }
 
-        // â”€â”€ Publications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Publications ──
         section('Publications');
         if (publications.length > 0) {
             const w = [190, 100, 65, 55, 105];
@@ -459,9 +493,13 @@ exports.exportPDF = async (req, res, next) => {
             tblRow(['Title', 'Journal / Venue', 'Type', 'Indexed', 'Acad. Year'], w, true);
             publications.forEach(p => {
                 tblRow([p.title, p.journalName, p.publicationType, p.indexedType, p.academicYear], w);
-                if (p.doi || p.issn) {
+                if (p.doi || p.issn || (p.indexedType === 'IEEE Conference' && p.conferenceDate)) {
                     checkY(12);
-                    const sub = [p.doi && `DOI: ${p.doi}`, p.issn && `ISSN: ${p.issn}`].filter(Boolean).join('   |   ');
+                    const sub = [
+                        p.doi && `DOI: ${p.doi}`,
+                        p.issn && `ISSN: ${p.issn}`,
+                        p.indexedType === 'IEEE Conference' && p.conferenceDate && `Conf Date: ${fmtDate(p.conferenceDate)}`
+                    ].filter(Boolean).join('   |   ');
                     doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(GREY)
                         .text(`     ${sub}`, L + 6, doc.y, { width: CW - 10, lineBreak: false, ellipsis: true });
                     doc.moveDown(0.2);
@@ -471,7 +509,26 @@ exports.exportPDF = async (req, res, next) => {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No publications added.', L + 4, doc.y); doc.moveDown(0.4);
         }
 
-        // â”€â”€ Patents â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Books & Chapters ──
+        section('Books & Chapters');
+        if (books.length > 0) {
+            const w = [190, 100, 65, 55, 105];
+            tblReset();
+            tblRow(['Title', 'Publisher / Journal', 'Type', 'ISBN / ISSN', 'Acad. Year'], w, true);
+            books.forEach(b => {
+                tblRow([b.title, b.journalName, b.publicationType, b.issn, b.academicYear], w);
+                if (b.doi) {
+                    checkY(12);
+                    doc.font('Helvetica-Oblique').fontSize(7.5).fillColor(GREY)
+                        .text(`     DOI: ${b.doi}`, L + 6, doc.y, { width: CW - 10, lineBreak: false, ellipsis: true });
+                    doc.moveDown(0.2);
+                }
+            });
+        } else {
+            doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No books or chapters added.', L + 4, doc.y); doc.moveDown(0.4);
+        }
+
+        // ── Patents ──
         section('Patents');
         if (patents.length > 0) {
             const w = [185, 100, 65, 95, 70];
@@ -482,24 +539,24 @@ exports.exportPDF = async (req, res, next) => {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No patents added.', L + 4, doc.y); doc.moveDown(0.4);
         }
 
-        // â”€â”€ Workshops â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Workshops ──
         section('Workshops & FDPs');
         if (workshops.length > 0) {
-            const w = [185, 145, 65, 85, 35];
+            const w = [150, 115, 60, 60, 50, 80];
             tblReset();
-            tblRow(['Title', 'Institution', 'Role', 'Date', 'Year'], w, true);
-            workshops.forEach(ws => tblRow([ws.title, ws.institution, ws.role, fmtDate(ws.date), ws.academicYear], w));
+            tblRow(['Title', 'Institution', 'Role', 'Mode', 'Duration', 'Date'], w, true);
+            workshops.forEach(ws => tblRow([ws.title, ws.institution, ws.role, ws.mode || '-', ws.durationDays || '-', fmtDate(ws.date)], w));
         } else {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No workshops added.', L + 4, doc.y); doc.moveDown(0.4);
         }
 
-        // â”€â”€ Seminars â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        // ── Seminars ──
         section('Seminars & Conferences');
         if (seminars.length > 0) {
-            const w = [185, 145, 65, 85, 35];
+            const w = [170, 130, 65, 65, 85];
             tblReset();
-            tblRow(['Topic', 'Institution', 'Role', 'Date', 'Year'], w, true);
-            seminars.forEach(s => tblRow([s.topic, s.institution, s.role, fmtDate(s.date), s.academicYear], w));
+            tblRow(['Topic', 'Institution', 'Role', 'Mode', 'Date'], w, true);
+            seminars.forEach(s => tblRow([s.topic, s.institution, s.role, s.mode || '-', fmtDate(s.date)], w));
         } else {
             doc.font('Helvetica').fontSize(9).fillColor(GREY).text('  No seminars added.', L + 4, doc.y); doc.moveDown(0.4);
         }

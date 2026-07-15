@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Eye, EyeOff, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Lock, Eye, EyeSlash, CheckCircle, ArrowLeft } from '@phosphor-icons/react';
 import { useSearchParams } from 'react-router-dom';
 import API from '../api/axios';
 
@@ -83,7 +83,7 @@ const ResetPassword = () => {
                                     />
                                     <button type="button" onClick={() => setShowPwd(!showPwd)}
                                         className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600">
-                                        {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        {showPwd ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                     </button>
                                 </div>
                             </div>

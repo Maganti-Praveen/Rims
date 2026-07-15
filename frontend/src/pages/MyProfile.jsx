@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext';
 import FacultyProfile from './FacultyProfile';
-import { Shield, Mail, Building2, User } from 'lucide-react';
+import { Shield, Envelope, Buildings, User } from '@phosphor-icons/react';
 
 const MyProfile = () => {
     const { user } = useAuth();
@@ -24,7 +24,7 @@ const MyProfile = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex items-center gap-3 p-3 bg-dark-50 rounded-xl">
-                            <Mail className="w-5 h-5 text-primary-600" />
+                            <Envelope className="w-5 h-5 text-primary-600" />
                             <div>
                                 <p className="text-[10px] text-dark-400 font-medium uppercase tracking-wider">Email</p>
                                 <p className="text-sm text-dark-800 font-medium">{user.email}</p>
@@ -39,7 +39,7 @@ const MyProfile = () => {
                         </div>
                         {user.department && (
                             <div className="flex items-center gap-3 p-3 bg-dark-50 rounded-xl">
-                                <Building2 className="w-5 h-5 text-primary-600" />
+                                <Buildings className="w-5 h-5 text-primary-600" />
                                 <div>
                                     <p className="text-[10px] text-dark-400 font-medium uppercase tracking-wider">Department</p>
                                     <p className="text-sm text-dark-800 font-medium">{user.department}</p>

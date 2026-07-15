@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../../api/axios';
-import { AlertTriangle, Info, CheckCircle, ChevronRight, Bell } from 'lucide-react';
+import { Warning, Info, CheckCircle, CaretRight, Bell } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 
 const ReminderBanner = () => {
@@ -27,7 +27,7 @@ const ReminderBanner = () => {
     if (visibleReminders.length === 0) return null;
 
     const severityConfig = {
-        warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800', icon: AlertTriangle, iconColor: 'text-amber-500' },
+        warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-800', icon: Warning, iconColor: 'text-amber-500' },
         info:    { bg: 'bg-primary-50', border: 'border-primary-200', text: 'text-primary-800', icon: Bell, iconColor: 'text-primary-500' },
         success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-800', icon: CheckCircle, iconColor: 'text-emerald-500' },
     };
@@ -49,7 +49,7 @@ const ReminderBanner = () => {
                             <p className={`text-xs ${config.text} opacity-75 truncate`}>{r.message}</p>
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
-                            {r.link && <ChevronRight className={`w-4 h-4 ${config.iconColor}`} />}
+                            {r.link && <CaretRight className={`w-4 h-4 ${config.iconColor}`} />}
                             <button
                                 onClick={(e) => {
                                 e.stopPropagation();

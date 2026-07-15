@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Home, ArrowLeft, BookOpen } from 'lucide-react';
+import { House, ArrowLeft, BookOpen } from '@phosphor-icons/react';
 
 const NotFound = () => {
     const navigate = useNavigate();
@@ -61,7 +61,7 @@ const NotFound = () => {
                             hover:from-primary-700 hover:to-primary-600
                             transition-all"
                     >
-                        <Home className="w-4 h-4" />
+                        <House className="w-4 h-4" />
                         Back to Home
                     </button>
                 </div>

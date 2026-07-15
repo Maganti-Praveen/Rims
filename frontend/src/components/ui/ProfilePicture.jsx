@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Camera, Upload, X, Trash2, RotateCcw } from 'lucide-react';
+import { Camera, UploadSimple, X, Trash, ArrowCounterClockwise } from '@phosphor-icons/react';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import getFileUrl from '../../utils/getFileUrl';
@@ -181,7 +181,7 @@ const ProfilePicture = ({ faculty, canEdit, onUpdate }) => {
                                     className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-dashed border-dark-200 hover:border-primary-400 hover:bg-primary-50/50 transition-all group"
                                 >
                                     <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                        <Upload className="w-6 h-6" />
+                                        <UploadSimple className="w-6 h-6" />
                                     </div>
                                     <span className="text-sm font-medium text-dark-700">Upload File</span>
                                     <span className="text-xs text-dark-400">JPG, PNG (max 5MB)</span>
@@ -236,7 +236,7 @@ const ProfilePicture = ({ faculty, canEdit, onUpdate }) => {
                                         onClick={() => { setPreview(null); setMode('choose'); }}
                                         className="btn-secondary text-sm flex items-center gap-2"
                                     >
-                                        <RotateCcw className="w-4 h-4" /> Retake
+                                        <ArrowCounterClockwise className="w-4 h-4" /> Retake
                                     </button>
                                     <button
                                         onClick={handleUpload}
@@ -246,7 +246,7 @@ const ProfilePicture = ({ faculty, canEdit, onUpdate }) => {
                                         {uploading ? (
                                             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                         ) : (
-                                            <Upload className="w-4 h-4" />
+                                            <UploadSimple className="w-4 h-4" />
                                         )}
                                         Save
                                     </button>

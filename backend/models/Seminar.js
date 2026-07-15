@@ -26,6 +26,10 @@ const seminarSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    mode: {
+        type: String,
+        enum: ['Online', 'Offline'],
+    },
 }, { timestamps: true });
 
 seminarSchema.index({ facultyId: 1 });

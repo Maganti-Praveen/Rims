@@ -26,6 +26,13 @@ const workshopSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    durationDays: {
+        type: String,
+    },
+    mode: {
+        type: String,
+        enum: ['Online', 'Offline'],
+    },
     certificateUrl: {
         type: String,
     },

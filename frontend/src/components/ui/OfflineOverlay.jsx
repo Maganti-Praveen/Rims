@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { WifiOff, RefreshCw } from 'lucide-react';
+import { WifiSlash, ArrowsCounterClockwise } from '@phosphor-icons/react';
 
 /**
  * Shows a full-screen offline overlay when the browser loses internet.
@@ -30,7 +30,7 @@ const OfflineOverlay = () => {
                 {/* Icon */}
                 <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary-600 to-primary-500
                     flex items-center justify-center mx-auto mb-5 shadow-lg shadow-orange-200">
-                    <WifiOff className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
+                    <WifiSlash className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                 </div>
 
                 {/* Badge */}
@@ -65,7 +65,7 @@ const OfflineOverlay = () => {
                         shadow-md shadow-orange-200 hover:from-primary-700 hover:to-primary-600
                         active:scale-95 transition-all"
                 >
-                    <RefreshCw className="w-4 h-4" />
+                    <ArrowsCounterClockwise className="w-4 h-4" />
                     Try Again
                 </button>
 

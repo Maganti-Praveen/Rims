@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Download, X } from 'lucide-react';
+import { DownloadSimple, X } from '@phosphor-icons/react';
 
 /**
  * Shows a styled "Install App" banner when the browser fires
@@ -36,7 +36,7 @@ const PWAInstallPrompt = () => {
                 {/* Icon */}
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-600 to-primary-500
                     flex items-center justify-center shrink-0 shadow-sm">
-                    <Download className="w-5 h-5 text-white" />
+                    <DownloadSimple className="w-5 h-5 text-white" />
                 </div>
 
                 {/* Text */}

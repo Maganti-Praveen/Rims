@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
-import { ClipboardList, Search } from 'lucide-react';
+import { ClipboardText } from '@phosphor-icons/react';
 
 const ActivityLogs = () => {
     const [logs, setLogs] = useState([]);
@@ -50,7 +50,7 @@ const ActivityLogs = () => {
     return (
         <div>
             <div className="flex items-center gap-3 mb-6">
-                <ClipboardList className="w-6 h-6 text-primary-600" />
+                <ClipboardText className="w-6 h-6 text-primary-600" />
                 <div>
                     <h1 className="text-2xl font-bold text-dark-900">Activity Logs</h1>
                     <p className="text-dark-500 text-sm">{pagination.total} total activities recorded</p>

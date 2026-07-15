@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import API from '../api/axios';
 import {
-    BookOpen, Lightbulb, Award, Mic, FileCheck,
-    ArrowRightLeft, Users, BarChart3, TrendingUp
-} from 'lucide-react';
+    BookOpen, Lightbulb, Briefcase, Microphone, Certificate,
+    ArrowsLeftRight, Users, ChartBar, TrendUp
+} from '@phosphor-icons/react';
 import {
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis,
@@ -43,6 +43,7 @@ const DeptComparison = () => {
         if (!result) return [];
         return [
             { category: 'Publications', d1: result.dept1.publications, d2: result.dept2.publications },
+            { category: 'Books & Chapters', d1: result.dept1.books || 0, d2: result.dept2.books || 0 },
             { category: 'Patents', d1: result.dept1.patents, d2: result.dept2.patents },
             { category: 'Workshops', d1: result.dept1.workshops, d2: result.dept2.workshops },
             { category: 'Seminars', d1: result.dept1.seminars, d2: result.dept2.seminars },
@@ -54,6 +55,7 @@ const DeptComparison = () => {
         if (!result) return [];
         return [
             { name: 'Publications', [result.dept1.department]: result.dept1.publications, [result.dept2.department]: result.dept2.publications },
+            { name: 'Books & Chapters', [result.dept1.department]: result.dept1.books || 0, [result.dept2.department]: result.dept2.books || 0 },
             { name: 'Patents', [result.dept1.department]: result.dept1.patents, [result.dept2.department]: result.dept2.patents },
             { name: 'Workshops', [result.dept1.department]: result.dept1.workshops, [result.dept2.department]: result.dept2.workshops },
             { name: 'Seminars', [result.dept1.department]: result.dept1.seminars, [result.dept2.department]: result.dept2.seminars },
@@ -94,7 +96,7 @@ const DeptComparison = () => {
                         </select>
                     </div>
                     <div className="flex items-center justify-center pb-1">
-                        <ArrowRightLeft className="w-5 h-5 text-accent-500" />
+                        <ArrowsLeftRight className="w-5 h-5 text-accent-500" />
                     </div>
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-sm font-medium text-dark-700 mb-1">Department 2</label>
@@ -149,7 +151,7 @@ const DeptComparison = () => {
                         {/* Radar */}
                         <div className="card p-5">
                             <div className="flex items-center gap-2 mb-4">
-                                <BarChart3 className="w-5 h-5 text-primary-600" />
+                                <ChartBar className="w-5 h-5 text-primary-600" />
                                 <h2 className="text-base font-semibold text-primary-800">Research Radar</h2>
                             </div>
                             <ResponsiveContainer width="100%" height={300}>
@@ -167,7 +169,7 @@ const DeptComparison = () => {
                         {/* Bar Chart */}
                         <div className="card p-5">
                             <div className="flex items-center gap-2 mb-4">
-                                <TrendingUp className="w-5 h-5 text-accent-500" />
+                                <TrendUp className="w-5 h-5 text-accent-500" />
                                 <h2 className="text-base font-semibold text-primary-800">Category Breakdown</h2>
                             </div>
                             <ResponsiveContainer width="100%" height={300}>
@@ -193,10 +195,11 @@ const DeptComparison = () => {
                         </div>
                         <div className="space-y-2">
                             <StatRow label="Publications" icon={BookOpen} v1={result.dept1.publications} v2={result.dept2.publications} />
+                            <StatRow label="Books & Chapters" icon={BookOpen} v1={result.dept1.books || 0} v2={result.dept2.books || 0} />
                             <StatRow label="Patents" icon={Lightbulb} v1={result.dept1.patents} v2={result.dept2.patents} />
-                            <StatRow label="Workshops" icon={Award} v1={result.dept1.workshops} v2={result.dept2.workshops} />
-                            <StatRow label="Seminars" icon={Mic} v1={result.dept1.seminars} v2={result.dept2.seminars} />
-                            <StatRow label="Certifications" icon={FileCheck} v1={result.dept1.certifications} v2={result.dept2.certifications} />
+                            <StatRow label="Workshops" icon={Briefcase} v1={result.dept1.workshops} v2={result.dept2.workshops} />
+                            <StatRow label="Seminars" icon={Microphone} v1={result.dept1.seminars} v2={result.dept2.seminars} />
+                            <StatRow label="Certifications" icon={Certificate} v1={result.dept1.certifications} v2={result.dept2.certifications} />
                             <div className="flex items-center justify-between py-3 px-3 rounded-lg bg-primary-50 border border-primary-200 mt-2">
                                 <span className="text-sm font-semibold text-primary-800 flex-1">Total Output</span>
                                 <span className={`text-lg font-bold w-12 text-right ${result.dept1.total > result.dept2.total ? 'text-emerald-600' : result.dept1.total < result.dept2.total ? 'text-red-500' : 'text-dark-700'}`}>{result.dept1.total}</span>

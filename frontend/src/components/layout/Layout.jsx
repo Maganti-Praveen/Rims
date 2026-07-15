@@ -5,9 +5,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { Lock, LogOut, ChevronDown, Download } from 'lucide-react';
+import { Lock, SignOut, CaretDown, DownloadSimple } from '@phosphor-icons/react';
 import NotificationBell from '../ui/NotificationBell';
 import ChangePasswordModal from '../ui/ChangePasswordModal';
+import GlobalSearch from '../ui/GlobalSearch';
 
 const PAGE_TITLES = {
     '/home':           'Home',
@@ -110,10 +111,14 @@ const Layout = ({ children }) => {
                                         text-xs font-bold shadow-sm hover:from-primary-700 hover:to-primary-600
                                         transition-all mr-1"
                                 >
-                                    <Download className="w-3.5 h-3.5" />
+                                    <DownloadSimple className="w-3.5 h-3.5" />
                                     Install App
                                 </button>
                             )}
+
+                            <div className="mr-2">
+                                <GlobalSearch />
+                            </div>
 
                             <NotificationBell />
 
@@ -136,7 +141,7 @@ const Layout = ({ children }) => {
                                         <p className="text-xs font-semibold text-dark-800 truncate max-w-[100px]">{user?.name}</p>
                                         <p className="text-[10px] text-dark-400 capitalize">{user?.role}</p>
                                     </div>
-                                    <ChevronDown className={`w-3.5 h-3.5 text-dark-400 transition-transform duration-200 hidden sm:block
+                                    <CaretDown className={`w-3.5 h-3.5 text-dark-400 transition-transform duration-200 hidden sm:block
                                         ${dropOpen ? 'rotate-180' : ''}`} />
                                 </button>
 
@@ -186,7 +191,7 @@ const Layout = ({ children }) => {
                                             >
                                                 <div className="w-7 h-7 rounded-lg bg-red-100 text-red-500 group-hover:bg-red-200
                                                     flex items-center justify-center transition-colors shrink-0">
-                                                    <LogOut className="w-3.5 h-3.5" />
+                                                    <SignOut className="w-3.5 h-3.5" />
                                                 </div>
                                                 <div>
                                                     <p className="font-medium leading-tight">Sign Out</p>

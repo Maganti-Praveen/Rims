@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
-import { Users, BookOpen, Lightbulb, Award, Mic, FileCheck, ArrowRightLeft } from 'lucide-react';
+import { Users, BookOpen, Lightbulb, Briefcase, Microphone, Certificate, ArrowsLeftRight } from '@phosphor-icons/react';
 import { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Legend } from 'recharts';
 
 const FacultyComparison = () => {
@@ -42,6 +42,7 @@ const FacultyComparison = () => {
         if (!comparison) return [];
         return [
             { category: 'Publications', faculty1: comparison.faculty1.publications, faculty2: comparison.faculty2.publications },
+            { category: 'Books & Chapters', faculty1: comparison.faculty1.books || 0, faculty2: comparison.faculty2.books || 0 },
             { category: 'Patents', faculty1: comparison.faculty1.patents, faculty2: comparison.faculty2.patents },
             { category: 'Workshops', faculty1: comparison.faculty1.workshops, faculty2: comparison.faculty2.workshops },
             { category: 'Seminars', faculty1: comparison.faculty1.seminars, faculty2: comparison.faculty2.seminars },
@@ -83,7 +84,7 @@ const FacultyComparison = () => {
                         </select>
                     </div>
                     <div className="flex items-center justify-center pb-1">
-                        <ArrowRightLeft className="w-5 h-5 text-accent-500" />
+                        <ArrowsLeftRight className="w-5 h-5 text-accent-500" />
                     </div>
                     <div className="flex-1 min-w-[200px]">
                         <label className="block text-sm font-medium text-dark-700 mb-1">Faculty 2</label>
@@ -132,10 +133,11 @@ const FacultyComparison = () => {
                         </div>
                         <div className="space-y-2">
                             <StatBlock label="Publications" val1={comparison.faculty1.publications} val2={comparison.faculty2.publications} icon={BookOpen} />
+                            <StatBlock label="Books & Chapters" val1={comparison.faculty1.books || 0} val2={comparison.faculty2.books || 0} icon={BookOpen} />
                             <StatBlock label="Patents" val1={comparison.faculty1.patents} val2={comparison.faculty2.patents} icon={Lightbulb} />
-                            <StatBlock label="Workshops" val1={comparison.faculty1.workshops} val2={comparison.faculty2.workshops} icon={Award} />
-                            <StatBlock label="Seminars" val1={comparison.faculty1.seminars} val2={comparison.faculty2.seminars} icon={Mic} />
-                            <StatBlock label="Certifications" val1={comparison.faculty1.certifications} val2={comparison.faculty2.certifications} icon={FileCheck} />
+                            <StatBlock label="Workshops" val1={comparison.faculty1.workshops} val2={comparison.faculty2.workshops} icon={Briefcase} />
+                            <StatBlock label="Seminars" val1={comparison.faculty1.seminars} val2={comparison.faculty2.seminars} icon={Microphone} />
+                            <StatBlock label="Certifications" val1={comparison.faculty1.certifications} val2={comparison.faculty2.certifications} icon={Certificate} />
                             <div className="flex items-center justify-between p-3 rounded-lg bg-primary-50 border border-primary-200">
                                 <span className="text-sm font-semibold text-primary-800">Total Output</span>
                                 <div className="flex items-center gap-6">

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyRound, Eye, EyeOff, X, ShieldCheck } from 'lucide-react';
+import { Key, Eye, EyeSlash, X, ShieldCheck } from '@phosphor-icons/react';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 
@@ -52,7 +52,7 @@ const ResetPasswordModal = ({ user, onClose }) => {
                 <div className="flex items-center justify-between px-6 py-4 bg-primary-800 text-white">
                     <div className="flex items-center gap-3">
                         <div className="p-1.5 bg-white/20 rounded-lg">
-                            <KeyRound className="w-5 h-5" />
+                            <Key className="w-5 h-5" />
                         </div>
                         <div>
                             <h2 className="font-bold text-base">Reset Password</h2>
@@ -94,7 +94,7 @@ const ResetPasswordModal = ({ user, onClose }) => {
                                 onClick={() => setShowNew(v => !v)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600"
                             >
-                                {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                {showNew ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
                     </div>
@@ -118,7 +118,7 @@ const ResetPasswordModal = ({ user, onClose }) => {
                                 onClick={() => setShowConfirm(v => !v)}
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-dark-400 hover:text-dark-600"
                             >
-                                {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                {showConfirm ? <EyeSlash className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                             </button>
                         </div>
                         {confirmPassword && newPassword !== confirmPassword && (
@@ -165,7 +165,7 @@ const ResetPasswordModal = ({ user, onClose }) => {
                             {loading ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <KeyRound className="w-4 h-4" />
+                                <Key className="w-4 h-4" />
                             )}
                             Reset Password
                         </button>

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
-import { UserPlus, Upload, FileSpreadsheet, CheckCircle, AlertTriangle, XCircle, Download, Users } from 'lucide-react';
+import { UserPlus, UploadSimple, FileXls, CheckCircle, Warning, XCircle, DownloadSimple, Users } from '@phosphor-icons/react';
 import toast from 'react-hot-toast';
 
 const CreateAccount = () => {
@@ -109,7 +109,7 @@ const CreateAccount = () => {
                     onClick={() => setActiveTab('bulk')}
                     className={`flex-1 flex items-center justify-center gap-2 text-sm font-medium py-2.5 px-4 rounded-lg transition-all ${activeTab === 'bulk' ? 'bg-white text-primary-700 shadow-sm' : 'text-dark-500 hover:text-dark-700'}`}
                 >
-                    <FileSpreadsheet className="w-4 h-4" /> Bulk Upload
+                    <FileXls className="w-4 h-4" /> Bulk Upload
                 </button>
             </div>
 
@@ -213,7 +213,7 @@ const CreateAccount = () => {
                     <div className="card p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="p-2 bg-primary-100 rounded-lg">
-                                <Upload className="w-5 h-5 text-primary-700" />
+                                <UploadSimple className="w-5 h-5 text-primary-700" />
                             </div>
                             <div>
                                 <h2 className="text-lg font-bold text-dark-800">Upload Excel File</h2>
@@ -224,7 +224,7 @@ const CreateAccount = () => {
                         {/* Template Download */}
                         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-5">
                             <div className="flex items-start gap-3">
-                                <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <FileXls className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                                 <div className="flex-1">
                                     <p className="text-sm font-semibold text-blue-800">Download Template</p>
                                     <p className="text-xs text-blue-600 mt-0.5 mb-2">
@@ -233,7 +233,7 @@ const CreateAccount = () => {
                                         <span className="text-blue-500">Designation options: Assistant Professor, Associate Professor, Head of the Department, Principal, Dean Planning, Dean Internal Affairs, Dean Placements, Dean Academics</span>
                                     </p>
                                     <button onClick={downloadTemplate} className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1.5 rounded-lg transition-all">
-                                        <Download className="w-3.5 h-3.5" /> Download CSV Template
+                                        <DownloadSimple className="w-3.5 h-3.5" /> Download CSV Template
                                     </button>
                                 </div>
                             </div>
@@ -249,7 +249,7 @@ const CreateAccount = () => {
                                 id="bulk-upload-input"
                             />
                             <label htmlFor="bulk-upload-input" className="cursor-pointer">
-                                <FileSpreadsheet className="w-12 h-12 text-dark-300 mx-auto mb-3" />
+                                <FileXls className="w-12 h-12 text-dark-300 mx-auto mb-3" />
                                 {file ? (
                                     <div>
                                         <p className="text-sm font-semibold text-dark-800">{file.name}</p>
@@ -274,7 +274,7 @@ const CreateAccount = () => {
                                 {uploading ? (
                                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : (
-                                    <Upload className="w-4 h-4" />
+                                    <UploadSimple className="w-4 h-4" />
                                 )}
                                 {uploading ? 'Processing...' : 'Upload & Create Accounts'}
                             </button>
@@ -296,7 +296,7 @@ const CreateAccount = () => {
                                     <p className="text-xs text-emerald-600">Created</p>
                                 </div>
                                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
-                                    <AlertTriangle className="w-5 h-5 text-amber-500 mx-auto mb-1" />
+                                    <Warning className="w-5 h-5 text-amber-500 mx-auto mb-1" />
                                     <p className="text-2xl font-bold text-amber-700">{uploadResult.summary.skipped}</p>
                                     <p className="text-xs text-amber-600">Skipped</p>
                                 </div>
@@ -310,7 +310,7 @@ const CreateAccount = () => {
                             {/* Created List */}
                             {uploadResult.data.created.length > 0 && (
                                 <div className="mb-4">
-                                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">✅ Created Successfully</p>
+                                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><CheckCircle className="w-4 h-4" /> Created Successfully</p>
                                     <div className="space-y-1">
                                         {uploadResult.data.created.map((u, i) => (
                                             <div key={i} className="flex items-center gap-3 bg-emerald-50/50 p-2 rounded-lg text-sm">
@@ -327,7 +327,7 @@ const CreateAccount = () => {
                             {/* Skipped List */}
                             {uploadResult.data.skipped.length > 0 && (
                                 <div className="mb-4">
-                                    <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2">⚠️ Skipped (Duplicates)</p>
+                                    <p className="text-xs font-bold text-amber-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><Warning className="w-4 h-4" /> Skipped (Duplicates)</p>
                                     <div className="space-y-1">
                                         {uploadResult.data.skipped.map((u, i) => (
                                             <div key={i} className="flex items-center gap-3 bg-amber-50/50 p-2 rounded-lg text-sm">
@@ -343,7 +343,7 @@ const CreateAccount = () => {
                             {/* Error List */}
                             {uploadResult.data.errors.length > 0 && (
                                 <div>
-                                    <p className="text-xs font-bold text-red-700 uppercase tracking-wider mb-2">❌ Errors</p>
+                                    <p className="text-xs font-bold text-red-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><XCircle className="w-4 h-4" /> Errors</p>
                                     <div className="space-y-1">
                                         {uploadResult.data.errors.map((u, i) => (
                                             <div key={i} className="flex items-center gap-3 bg-red-50/50 p-2 rounded-lg text-sm">

@@ -7,10 +7,10 @@ import Accordion from '../components/ui/Accordion';
 import Modal from '../components/ui/Modal';
 import toast from 'react-hot-toast';
 import {
-    User, GraduationCap, Award, BookOpen, Lightbulb,
-    Briefcase, Mic, Plus, Edit3, Trash2, Download,
-    Upload, ExternalLink, KeyRound, X
-} from 'lucide-react';
+    User, GraduationCap, Certificate, BookOpen, Lightbulb,
+    Briefcase, Microphone, Plus, PencilSimple, Trash, DownloadSimple,
+    UploadSimple, ArrowSquareOut, Key, X
+} from '@phosphor-icons/react';
 import ProfilePicture from '../components/ui/ProfilePicture';
 import useAcademicYears from '../hooks/useAcademicYears';
 import ScoreCard from '../components/ui/ScoreCard';
@@ -24,6 +24,7 @@ const FacultyProfile = () => {
     const [education, setEducation] = useState([]);
     const [certifications, setCertifications] = useState([]);
     const [publications, setPublications] = useState([]);
+    const [books, setBooks] = useState([]);
     const [patents, setPatents] = useState([]);
     const [workshops, setWorkshops] = useState([]);
     const [seminars, setSeminars] = useState([]);
@@ -40,24 +41,25 @@ const FacultyProfile = () => {
     const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
     const [pdfModalOpen, setPdfModalOpen] = useState(false);
     const [pdfYear, setPdfYear] = useState('');
-
+ 
     const facultyId = id || currentUser?._id;
     const canEdit = currentUser?._id === facultyId;
     // Admin and HOD can reset passwords (but not their own via this UI)
     const canResetPassword = (currentUser?.role === 'admin' || currentUser?.role === 'hod') && !canEdit;
-
+ 
     useEffect(() => {
         if (facultyId) fetchAll();
     }, [facultyId]);
-
+ 
     const fetchAll = async () => {
         setLoading(true);
         try {
-            const [facRes, eduRes, certRes, pubRes, patRes, wsRes, semRes] = await Promise.all([
+            const [facRes, eduRes, certRes, pubRes, bookRes, patRes, wsRes, semRes] = await Promise.all([
                 API.get(`/users/${facultyId}`),
                 API.get(`/education/${facultyId}`),
                 API.get(`/certifications/${facultyId}`),
                 API.get(`/publications/faculty/${facultyId}`),
+                API.get(`/books/faculty/${facultyId}`),
                 API.get(`/patents/faculty/${facultyId}`),
                 API.get(`/workshops/faculty/${facultyId}`),
                 API.get(`/seminars/faculty/${facultyId}`),
@@ -66,6 +68,7 @@ const FacultyProfile = () => {
             setEducation(eduRes.data.data);
             setCertifications(certRes.data.data);
             setPublications(pubRes.data.data);
+            setBooks(bookRes.data.data);
             setPatents(patRes.data.data);
             setWorkshops(wsRes.data.data);
             setSeminars(semRes.data.data);
@@ -75,7 +78,7 @@ const FacultyProfile = () => {
             setLoading(false);
         }
     };
-
+ 
     const openAddModal = (type) => {
         setModalType(type);
         setEditItem(null);
@@ -83,7 +86,7 @@ const FacultyProfile = () => {
         setFile(null);
         setModalOpen(true);
     };
-
+ 
     const openEditModal = (type, item) => {
         setModalType(type);
         setEditItem(item);
@@ -91,9 +94,9 @@ const FacultyProfile = () => {
         setFile(null);
         setModalOpen(true);
     };
-
+ 
     const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
+ 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSaving(true);
@@ -102,13 +105,14 @@ const FacultyProfile = () => {
                 education: '/education',
                 certification: '/certifications',
                 publication: '/publications',
+                book: '/books',
                 patent: '/patents',
                 workshop: '/workshops',
                 seminar: '/seminars',
             };
             const base = endpoints[modalType];
-            const hasFile = ['certification', 'publication', 'patent', 'workshop'].includes(modalType);
-
+            const hasFile = ['certification', 'publication', 'book', 'patent', 'workshop'].includes(modalType);
+ 
             let payload;
             if (hasFile && file) {
                 payload = new FormData();
@@ -152,6 +156,7 @@ const FacultyProfile = () => {
             education: '/education',
             certification: '/certifications',
             publication: '/publications',
+            book: '/books',
             patent: '/patents',
             workshop: '/workshops',
             seminar: '/seminars',
@@ -220,10 +225,10 @@ const FacultyProfile = () => {
     const TableActions = ({ type, item }) => canEdit ? (
         <div className="flex gap-1">
             <button onClick={() => openEditModal(type, item)} className="p-1.5 text-dark-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all">
-                <Edit3 className="w-3.5 h-3.5" />
+                <PencilSimple className="w-3.5 h-3.5" />
             </button>
             <button onClick={() => handleDelete(type, item._id)} className="p-1.5 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash className="w-3.5 h-3.5" />
             </button>
         </div>
     ) : null;
@@ -255,7 +260,16 @@ const FacultyProfile = () => {
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Degree *</label>
-                                <input name="degree" value={formData.degree || ''} onChange={handleChange} className="input-field" required /></div>
+                                <select name="degree" value={formData.degree || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select Degree</option>
+                                    <option value="Post-Doc (PDF)">Post-Doc (PDF)</option>
+                                    <option value="Ph.D">Ph.D</option>
+                                    <option value="Postgraduate (PG)">Postgraduate (PG)</option>
+                                    <option value="Undergraduate (UG)">Undergraduate (UG)</option>
+                                    <option value="Intermediate (12th)">Intermediate (12th)</option>
+                                    <option value="Diploma">Diploma</option>
+                                    <option value="SSC (10th)">SSC (10th)</option>
+                                </select></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">University *</label>
                                 <input name="university" value={formData.university || ''} onChange={handleChange} className="input-field" required /></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Specialization</label>
@@ -291,10 +305,26 @@ const FacultyProfile = () => {
                                 <input name="title" value={formData.title || ''} onChange={handleChange} className="input-field" required /></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Issued By *</label>
                                 <input name="issuedBy" value={formData.issuedBy || ''} onChange={handleChange} className="input-field" required /></div>
-                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Date</label>
-                                <input name="date" type="date" value={formData.date?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
-                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Credential ID</label>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Certificate Type *</label>
+                                <select name="certificateType" value={formData.certificateType || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select Type</option>
+                                    <option value="NPTEL">NPTEL</option>
+                                    <option value="SWAYAM">SWAYAM</option>
+                                    <option value="Coursera">Coursera</option>
+                                    <option value="Udemy">Udemy</option>
+                                    <option value="edX">edX</option>
+                                    <option value="AWS">AWS</option>
+                                    <option value="Oracle">Oracle</option>
+                                    <option value="Cisco">Cisco</option>
+                                    <option value="Google">Google</option>
+                                    <option value="Other">Other</option>
+                                </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Certificate ID / Credential ID (Optional)</label>
                                 <input name="credentialId" value={formData.credentialId || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Enroll Date</label>
+                                <input name="enrollDate" type="date" value={formData.enrollDate?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Issued Date</label>
+                                <input name="issuedDate" type="date" value={formData.issuedDate?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
                         </div>
                         <div className="mt-4"><label className="block text-sm font-medium text-dark-700 mb-1">Upload Certificate (PDF/Image)</label>
                             <input type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={(e) => setFile(e.target.files[0])} className="input-field" /></div>
@@ -318,7 +348,61 @@ const FacultyProfile = () => {
                                 <select name="publicationType" value={formData.publicationType || ''} onChange={handleChange} className="select-field">
                                     <option value="">Select</option>
                                     <option value="Journal">Journal</option><option value="Conference">Conference</option>
-                                    <option value="Book">Book</option><option value="Chapter">Chapter</option>
+                                </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Indexed In</label>
+                                <select name="indexedType" value={formData.indexedType || ''} onChange={handleChange} className="select-field">
+                                    <option value="">Select</option>
+                                    <option value="SCI">SCI</option><option value="Scopus">Scopus</option>
+                                    <option value="SEI">SEI</option><option value="UGC">UGC</option>
+                                    <option value="IEEE Conference">IEEE Conference</option>
+                                    <option value="Other">Other</option>
+                                </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Conference Date</label>
+                                <input 
+                                    name="conferenceDate" 
+                                    type="date" 
+                                    value={formData.conferenceDate?.split('T')[0] || ''} 
+                                    onChange={handleChange} 
+                                    className="input-field" 
+                                    disabled={formData.indexedType !== 'IEEE Conference'} 
+                                    required={formData.indexedType === 'IEEE Conference'}
+                                /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Academic Year *</label>
+                                <select name="academicYear" value={formData.academicYear || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select</option>
+                                    {academicYears.map((y) => <option key={y} value={y}>{y}</option>)}
+                                </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Publication Date</label>
+                                <input name="publicationDate" type="date" value={formData.publicationDate?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Research Domain</label>
+                                <select name="researchDomain" value={formData.researchDomain || ''} onChange={handleChange} className="select-field">
+                                    <option value="">Select Domain</option>
+                                    {['Artificial Intelligence', 'Machine Learning', 'Internet of Things', 'Cybersecurity', 'Renewable Energy', 'Data Science', 'Cloud Computing', 'Blockchain', 'Robotics', 'Signal Processing', 'VLSI Design', 'Power Systems', 'Embedded Systems', 'Computer Networks', 'Image Processing', 'Natural Language Processing', 'Other'].map(d => <option key={d} value={d}>{d}</option>)}
+                                </select></div>
+                        </div>
+                        <div className="mt-4"><label className="block text-sm font-medium text-dark-700 mb-1">Upload Paper (PDF)</label>
+                            <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="input-field" /></div>
+                    </>
+                );
+            case 'book':
+                return (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2"><label className="block text-sm font-medium text-dark-700 mb-1">Title *</label>
+                                <input name="title" value={formData.title || ''} onChange={handleChange} className="input-field" required /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Publisher Name / Journal Name</label>
+                                <input name="journalName" value={formData.journalName || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">ISBN / ISSN</label>
+                                <input name="issn" value={formData.issn || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Volume</label>
+                                <input name="volume" value={formData.volume || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">DOI</label>
+                                <input name="doi" value={formData.doi || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Type *</label>
+                                <select name="publicationType" value={formData.publicationType || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select</option>
+                                    <option value="Book">Book</option>
+                                    <option value="Chapter">Chapter</option>
                                 </select></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Indexed In</label>
                                 <select name="indexedType" value={formData.indexedType || ''} onChange={handleChange} className="select-field">
@@ -339,7 +423,7 @@ const FacultyProfile = () => {
                                     {['Artificial Intelligence', 'Machine Learning', 'Internet of Things', 'Cybersecurity', 'Renewable Energy', 'Data Science', 'Cloud Computing', 'Blockchain', 'Robotics', 'Signal Processing', 'VLSI Design', 'Power Systems', 'Embedded Systems', 'Computer Networks', 'Image Processing', 'Natural Language Processing', 'Other'].map(d => <option key={d} value={d}>{d}</option>)}
                                 </select></div>
                         </div>
-                        <div className="mt-4"><label className="block text-sm font-medium text-dark-700 mb-1">Upload Paper (PDF)</label>
+                        <div className="mt-4"><label className="block text-sm font-medium text-dark-700 mb-1">Upload Document (PDF)</label>
                             <input type="file" accept=".pdf" onChange={(e) => setFile(e.target.files[0])} className="input-field" /></div>
                     </>
                 );
@@ -384,6 +468,19 @@ const FacultyProfile = () => {
                                     <option value="">Select</option>
                                     <option value="Organized">Organized</option><option value="Attended">Attended</option>
                                 </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Mode *</label>
+                                <select name="mode" value={formData.mode || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select Mode</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Offline">Offline</option>
+                                </select></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">No. of Days *</label>
+                                <select name="durationDays" value={formData.durationDays || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select Days</option>
+                                    <option value="3 Days">3 Days</option>
+                                    <option value="5 Days">5 Days</option>
+                                    <option value="5+ Days">5+ Days</option>
+                                </select></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Date</label>
                                 <input name="date" type="date" value={formData.date?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Academic Year *</label>
@@ -405,12 +502,12 @@ const FacultyProfile = () => {
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Institution</label>
                                 <input name="institution" value={formData.institution || ''} onChange={handleChange} className="input-field" /></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Role</label>
-                                <select name="role" value={formData.role || ''} onChange={handleChange} className="select-field">
-                                    <option value="">Select</option>
-                                    <option value="Presented">Presented</option>
-                                    <option value="Attended">Attended</option>
-                                    <option value="Organized">Organized</option>
-                                    <option value="Chaired">Chaired</option>
+                                <input name="role" value={formData.role || ''} onChange={handleChange} className="input-field" /></div>
+                            <div><label className="block text-sm font-medium text-dark-700 mb-1">Mode *</label>
+                                <select name="mode" value={formData.mode || ''} onChange={handleChange} className="select-field" required>
+                                    <option value="">Select Mode</option>
+                                    <option value="Online">Online</option>
+                                    <option value="Offline">Offline</option>
                                 </select></div>
                             <div><label className="block text-sm font-medium text-dark-700 mb-1">Date</label>
                                 <input name="date" type="date" value={formData.date?.split('T')[0] || ''} onChange={handleChange} className="input-field" /></div>
@@ -449,13 +546,18 @@ const FacultyProfile = () => {
                                 <span className={`badge ${faculty.role === 'hod' ? 'badge-warning' : 'badge-primary'}`}>
                                     {faculty.role.toUpperCase()}
                                 </span>
+                                {education.find(e => e.isHighest) && (
+                                    <span className="badge bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold flex items-center gap-1">
+                                        <GraduationCap className="w-4 h-4 text-amber-600" /> {education.find(e => e.isHighest).degree}
+                                    </span>
+                                )}
                             </div>
                         </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {canEdit && (
                             <button onClick={openEditProfile} className="btn-secondary flex items-center gap-2 text-sm">
-                                <Edit3 className="w-4 h-4" /> Edit Profile
+                                <PencilSimple className="w-4 h-4" /> Edit Profile
                             </button>
                         )}
                         {canResetPassword && (
@@ -463,11 +565,11 @@ const FacultyProfile = () => {
                                 onClick={() => setResetPasswordOpen(true)}
                                 className="btn-secondary flex items-center gap-2 text-sm text-amber-700 border-amber-300 hover:bg-amber-50"
                             >
-                                <KeyRound className="w-4 h-4" /> Reset Password
+                                <Key className="w-4 h-4" /> Reset Password
                             </button>
                         )}
                         <button onClick={() => setPdfModalOpen(true)} className="btn-secondary flex items-center gap-2 text-sm">
-                            <Download className="w-4 h-4" /> Save PDF
+                            <DownloadSimple className="w-4 h-4" /> Save PDF
                         </button>
                     </div>
                 </div>
@@ -500,37 +602,37 @@ const FacultyProfile = () => {
                                 {faculty.orcidId && (
                                     <a href={`https://orcid.org/${faculty.orcidId}`} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition-all hover:bg-primary-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> ORCID: {faculty.orcidId}
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> ORCID: {faculty.orcidId}
                                     </a>
                                 )}
                                 {faculty.googleScholarUrl && (
                                     <a href={faculty.googleScholarUrl} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition-all hover:bg-primary-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> Google Scholar
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> Google Scholar
                                     </a>
                                 )}
                                 {faculty.scopusAuthorId && (
                                     <a href={`https://www.scopus.com/authid/detail.uri?authorId=${faculty.scopusAuthorId}`} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition-all hover:bg-primary-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> Scopus: {faculty.scopusAuthorId}
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> Scopus: {faculty.scopusAuthorId}
                                     </a>
                                 )}
                                 {faculty.vidhwanId && (
                                     <a href={`https://vidwan.inflibnet.ac.in/profile/${faculty.vidhwanId}`} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition-all hover:bg-primary-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> Vidwan: {faculty.vidhwanId}
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> Vidwan: {faculty.vidhwanId}
                                     </a>
                                 )}
                                 {faculty.researchGateUrl && (
                                     <a href={faculty.researchGateUrl} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-emerald-600 hover:text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-lg transition-all hover:bg-emerald-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> ResearchGate
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> ResearchGate
                                     </a>
                                 )}
                                 {faculty.linkedinUrl && (
                                     <a href={faculty.linkedinUrl} target="_blank" rel="noopener noreferrer"
                                         className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition-all hover:bg-blue-100">
-                                        <ExternalLink className="w-3.5 h-3.5" /> LinkedIn
+                                        <ArrowSquareOut className="w-3.5 h-3.5" /> LinkedIn
                                     </a>
                                 )}
                             </div>
@@ -576,7 +678,7 @@ const FacultyProfile = () => {
                 </Accordion>
 
                 {/* Certifications */}
-                <Accordion title="Certifications" icon={Award} count={certifications.length}>
+                <Accordion title="Certifications" icon={Certificate} count={certifications.length}>
                     <SectionHeader type="certification" />
                     {certifications.length > 0 ? (
                         <div className="overflow-x-auto mt-2">
@@ -584,17 +686,23 @@ const FacultyProfile = () => {
                                 <thead><tr className="border-b border-dark-100">
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Title</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Issued By</th>
-                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Date</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Type</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Enroll Date</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Issued Date</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Credential ID</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">File</th>
                                     {canEdit && <th className="py-2 px-3" />}
                                 </tr></thead>
                                 <tbody>
                                     {certifications.map((c) => (
                                         <tr key={c._id} className="border-b border-dark-50 hover:bg-dark-50/50">
-                                            <td className="py-2 px-3 text-dark-800">{c.title}</td>
+                                            <td className="py-2 px-3 text-dark-800 font-semibold">{c.title}</td>
                                             <td className="py-2 px-3 text-dark-600">{c.issuedBy}</td>
-                                            <td className="py-2 px-3 text-dark-600">{formatDate(c.date)}</td>
-                                            <td className="py-2 px-3">{c.fileUrl ? <a href={c.fileUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:text-primary-700"><ExternalLink className="w-4 h-4" /></a> : '-'}</td>
+                                            <td className="py-2 px-3"><span className="badge bg-primary-50 text-primary-700 border border-primary-100 text-xs font-semibold px-2 py-0.5 rounded-full">{c.certificateType || '-'}</span></td>
+                                            <td className="py-2 px-3 text-dark-600">{formatDate(c.enrollDate)}</td>
+                                            <td className="py-2 px-3 text-dark-600">{formatDate(c.issuedDate || c.date)}</td>
+                                            <td className="py-2 px-3 text-dark-600">{c.credentialId || '-'}</td>
+                                            <td className="py-2 px-3">{c.fileUrl ? <a href={c.fileUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:text-primary-700"><ArrowSquareOut className="w-4 h-4" /></a> : '-'}</td>
                                             {canEdit && <td className="py-2 px-3"><TableActions type="certification" item={c} /></td>}
                                         </tr>
                                     ))}
@@ -622,12 +730,19 @@ const FacultyProfile = () => {
                                 <tbody>
                                     {publications.map((p) => (
                                         <tr key={p._id} className="border-b border-dark-50 hover:bg-dark-50/50">
-                                            <td className="py-2 px-3 text-dark-800 max-w-[200px] truncate">{p.title}</td>
+                                            <td className="py-2 px-3">
+                                                <div className="font-semibold text-dark-800 max-w-[200px] truncate">{p.title}</div>
+                                                {p.indexedType === 'IEEE Conference' && p.conferenceDate && (
+                                                    <div className="text-[10px] text-amber-700 font-semibold bg-amber-50 border border-amber-100 rounded px-1.5 py-0.5 mt-0.5 inline-block">
+                                                        📅 Conf: {formatDate(p.conferenceDate)}
+                                                    </div>
+                                                )}
+                                            </td>
                                             <td className="py-2 px-3 text-dark-600">{p.journalName || '-'}</td>
                                             <td className="py-2 px-3"><span className="badge-primary">{p.publicationType || '-'}</span></td>
                                             <td className="py-2 px-3"><span className="badge-success">{p.indexedType || '-'}</span></td>
                                             <td className="py-2 px-3 text-dark-600">{p.academicYear || '-'}</td>
-                                            <td className="py-2 px-3">{p.fileUrl ? <a href={p.fileUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:text-primary-700"><ExternalLink className="w-4 h-4" /></a> : '-'}</td>
+                                            <td className="py-2 px-3">{p.fileUrl ? <a href={p.fileUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:text-primary-700"><ArrowSquareOut className="w-4 h-4" /></a> : '-'}</td>
                                             {canEdit && <td className="py-2 px-3"><TableActions type="publication" item={p} /></td>}
                                         </tr>
                                     ))}
@@ -635,6 +750,39 @@ const FacultyProfile = () => {
                             </table>
                         </div>
                     ) : <p className="text-dark-400 text-sm mt-2">No publications</p>}
+                </Accordion>
+
+                {/* Books & Chapters */}
+                <Accordion title="Books & Chapters" icon={BookOpen} count={books.length}>
+                    <SectionHeader type="book" />
+                    {books.length > 0 ? (
+                        <div className="overflow-x-auto mt-2">
+                            <table className="w-full text-sm">
+                                <thead><tr className="border-b border-dark-100">
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Title</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Publisher</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Type</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">ISBN / ISSN</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Year</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">File</th>
+                                    {canEdit && <th className="py-2 px-3" />}
+                                </tr></thead>
+                                <tbody>
+                                    {books.map((b) => (
+                                        <tr key={b._id} className="border-b border-dark-50 hover:bg-dark-50/50">
+                                            <td className="py-2 px-3 text-dark-800 font-semibold max-w-[200px] truncate">{b.title}</td>
+                                            <td className="py-2 px-3 text-dark-600">{b.journalName || '-'}</td>
+                                            <td className="py-2 px-3"><span className="badge-primary">{b.publicationType || '-'}</span></td>
+                                            <td className="py-2 px-3"><span className="badge-success">{b.issn || '-'}</span></td>
+                                            <td className="py-2 px-3 text-dark-600">{b.academicYear || '-'}</td>
+                                            <td className="py-2 px-3">{b.fileUrl ? <a href={b.fileUrl} target="_blank" rel="noreferrer" className="text-primary-600 hover:text-primary-700"><ArrowSquareOut className="w-4 h-4" /></a> : '-'}</td>
+                                            {canEdit && <td className="py-2 px-3"><TableActions type="book" item={b} /></td>}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : <p className="text-dark-400 text-sm mt-2">No books or chapters</p>}
                 </Accordion>
 
                 {/* Patents */}
@@ -678,6 +826,8 @@ const FacultyProfile = () => {
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Title</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Institution</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Role</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Mode</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Duration</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Date</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Year</th>
                                     {canEdit && <th className="py-2 px-3" />}
@@ -688,6 +838,8 @@ const FacultyProfile = () => {
                                             <td className="py-2 px-3 text-dark-800">{w.title}</td>
                                             <td className="py-2 px-3 text-dark-600">{w.institution || '-'}</td>
                                             <td className="py-2 px-3"><span className="badge-primary">{w.role || '-'}</span></td>
+                                            <td className="py-2 px-3"><span className="badge bg-green-50 text-green-700 border border-green-100 text-xs font-semibold px-2 py-0.5 rounded-full">{w.mode || '-'}</span></td>
+                                            <td className="py-2 px-3 text-dark-600">{w.durationDays || '-'}</td>
                                             <td className="py-2 px-3 text-dark-600">{formatDate(w.date)}</td>
                                             <td className="py-2 px-3 text-dark-600">{w.academicYear || '-'}</td>
                                             {canEdit && <td className="py-2 px-3"><TableActions type="workshop" item={w} /></td>}
@@ -700,7 +852,7 @@ const FacultyProfile = () => {
                 </Accordion>
 
                 {/* Seminars */}
-                <Accordion title="Seminars" icon={Mic} count={seminars.length}>
+                <Accordion title="Seminars" icon={Microphone} count={seminars.length}>
                     <SectionHeader type="seminar" />
                     {seminars.length > 0 ? (
                         <div className="overflow-x-auto mt-2">
@@ -709,6 +861,7 @@ const FacultyProfile = () => {
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Topic</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Institution</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Role</th>
+                                    <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Mode</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Date</th>
                                     <th className="text-left py-2 px-3 text-xs font-semibold text-dark-500">Year</th>
                                     {canEdit && <th className="py-2 px-3" />}
@@ -719,6 +872,7 @@ const FacultyProfile = () => {
                                             <td className="py-2 px-3 text-dark-800">{s.topic}</td>
                                             <td className="py-2 px-3 text-dark-600">{s.institution || '-'}</td>
                                             <td className="py-2 px-3 text-dark-600">{s.role || '-'}</td>
+                                            <td className="py-2 px-3"><span className="badge bg-green-50 text-green-700 border border-green-100 text-xs font-semibold px-2 py-0.5 rounded-full">{s.mode || '-'}</span></td>
                                             <td className="py-2 px-3 text-dark-600">{formatDate(s.date)}</td>
                                             <td className="py-2 px-3 text-dark-600">{s.academicYear || '-'}</td>
                                             {canEdit && <td className="py-2 px-3"><TableActions type="seminar" item={s} /></td>}
@@ -911,7 +1065,7 @@ const FacultyProfile = () => {
                         {/* Header */}
                         <div className="flex items-center justify-between px-6 py-4 border-b border-dark-100 bg-primary-800">
                             <div className="flex items-center gap-2 text-white">
-                                <Download className="w-5 h-5" />
+                                <DownloadSimple className="w-5 h-5" />
                                 <h2 className="text-base font-semibold">Save Profile as PDF</h2>
                             </div>
                             <button onClick={() => setPdfModalOpen(false)} className="text-white/70 hover:text-white">
@@ -947,7 +1101,7 @@ const FacultyProfile = () => {
                                     onClick={() => handleDownloadPDF(pdfYear)}
                                     className="btn-primary flex-1 flex items-center justify-center gap-2 text-sm"
                                 >
-                                    <Download className="w-4 h-4" /> Download PDF
+                                    <DownloadSimple className="w-4 h-4" /> Download PDF
                                 </button>
                             </div>
                         </div>

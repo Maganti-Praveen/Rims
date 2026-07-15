@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, ArrowLeft, Send } from 'lucide-react';
+import { Envelope, ArrowLeft, PaperPlaneRight } from '@phosphor-icons/react';
 import API from '../api/axios';
 
 const ForgotPassword = () => {
@@ -39,7 +39,7 @@ const ForgotPassword = () => {
                     {status === 'success' ? (
                         <div className="text-center py-4">
                             <div className="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Send className="w-7 h-7 text-emerald-600" />
+                                <PaperPlaneRight className="w-7 h-7 text-emerald-600" />
                             </div>
                             <p className="text-dark-700 font-medium">{message}</p>
                             <p className="text-dark-400 text-sm mt-2">Check your inbox and click the reset link within 15 minutes.</p>
@@ -51,7 +51,7 @@ const ForgotPassword = () => {
                                     College Email
                                 </label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
+                                    <Envelope className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
                                     <input
                                         type="email"
                                         value={email}

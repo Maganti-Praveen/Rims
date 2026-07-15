@@ -3,8 +3,8 @@ const AcademicYear = require('../models/AcademicYear');
 /**
  * Auto-manages academic years on every server startup.
  *
- * First run (empty DB): seeds from HISTORY_START_YEAR up to next academic year.
- * Subsequent runs: only ensures current + next year exist (new year rollover).
+ * Seeds from HISTORY_START_YEAR up to current academic year.
+ * Deletes any future academic years to prevent displaying them prematurely.
  *
  * Indian academic year: June–May
  *   Month >= 6 → current AY starts this calendar year  (e.g. June 2026 → 2026-27)
@@ -26,30 +26,38 @@ const autoSeedAcademicYears = async () => {
         // Start year of the CURRENT academic year
         const currentStartYear = month >= 6 ? year : year - 1;
 
+        // Clean up any future years seeded prematurely (e.g., 2027-28 in year 2026)
+        const allYears = await AcademicYear.find({});
+        for (const yr of allYears) {
+            const startY = parseInt(yr.label.split('-')[0]);
+            if (startY > currentStartYear) {
+                await AcademicYear.deleteOne({ _id: yr._id });
+                console.log(`[AcademicYear] Cleaned up premature future year: ${yr.label}`);
+            }
+        }
+
         const existingCount = await AcademicYear.countDocuments();
 
         if (existingCount === 0) {
-            // Fresh DB — seed full history up to next year
+            // Fresh DB — seed full history up to current year
             const years = [];
             let order = 1;
-            for (let y = HISTORY_START_YEAR; y <= currentStartYear + 1; y++) {
-                const isActive = y >= currentStartYear; // current + next are active
+            for (let y = HISTORY_START_YEAR; y <= currentStartYear; y++) {
+                const isActive = y === currentStartYear;
                 years.push({ label: makeLabel(y), order: order++, isActive });
             }
             await AcademicYear.insertMany(years);
-            console.log(`[AcademicYear] Seeded ${years.length} academic years (${makeLabel(HISTORY_START_YEAR)} → ${makeLabel(currentStartYear + 1)})`);
+            console.log(`[AcademicYear] Seeded ${years.length} academic years (${makeLabel(HISTORY_START_YEAR)} → ${makeLabel(currentStartYear)})`);
         } else {
-            // DB has data — just ensure current + next year exist (year rollover)
+            // DB has data — just ensure current year exists
             const maxOrderDoc = await AcademicYear.findOne().sort({ order: -1 }).select('order').lean();
             let nextOrder = maxOrderDoc ? maxOrderDoc.order + 1 : 1;
 
-            for (const startYear of [currentStartYear, currentStartYear + 1]) {
-                const label = makeLabel(startYear);
-                const exists = await AcademicYear.findOne({ label });
-                if (!exists) {
-                    await AcademicYear.create({ label, order: nextOrder++, isActive: true });
-                    console.log(`[AcademicYear] Auto-created: ${label}`);
-                }
+            const label = makeLabel(currentStartYear);
+            const exists = await AcademicYear.findOne({ label });
+            if (!exists) {
+                await AcademicYear.create({ label, order: nextOrder++, isActive: true });
+                console.log(`[AcademicYear] Auto-created: ${label}`);
             }
         }
     } catch (err) {

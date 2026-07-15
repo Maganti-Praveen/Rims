@@ -13,6 +13,9 @@ import Home from './pages/Home';
 import MyResearch from './pages/MyResearch';
 import Explore from './pages/Explore';
 import DeptComparison from './pages/DeptComparison';
+import FacultyComparison from './pages/FacultyComparison';
+import ScoreSettings from './pages/ScoreSettings';
+import Rankings from './pages/Rankings';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import NotFound from './pages/NotFound';
@@ -87,6 +90,24 @@ const App = () => {
                 <Route path="/compare" element={
                     <ProtectedRoute roles={['admin']}>
                         <Layout><DeptComparison /></Layout>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/compare-faculty" element={
+                    <ProtectedRoute roles={['admin', 'hod']}>
+                        <Layout><FacultyComparison /></Layout>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/score-settings" element={
+                    <ProtectedRoute roles={['admin']}>
+                        <Layout><ScoreSettings /></Layout>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/rankings" element={
+                    <ProtectedRoute roles={['faculty', 'hod', 'admin']}>
+                        <Layout><Rankings /></Layout>
                     </ProtectedRoute>
                 } />
 

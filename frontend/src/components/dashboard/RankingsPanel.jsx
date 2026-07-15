@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../../api/axios';
-import { Trophy, Crown, Medal, Upload } from 'lucide-react';
+import { Trophy, Crown, Medal, UploadSimple } from '@phosphor-icons/react';
 
 const RANK_STYLE = [
     { icon: Crown,  color: 'text-yellow-500', bg: 'bg-yellow-50 border border-yellow-200'  },
@@ -77,7 +77,7 @@ const RankingsPanel = () => {
                                     <p className="text-xs text-dark-400">{f.department}</p>
                                 </div>
                                 <div className="flex items-center gap-1 bg-primary-50 border border-primary-100 px-2 py-1 rounded-lg">
-                                    <Upload className="w-3 h-3 text-primary-500" />
+                                    <UploadSimple className="w-3 h-3 text-primary-500" />
                                     <span className="text-xs font-bold text-primary-700">{f.score}</span>
                                 </div>
                             </Link>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, Send, Users, Building2, X, Mail } from 'lucide-react';
+import { Bell, PaperPlaneRight, Users, Buildings, X, Envelope } from '@phosphor-icons/react';
 import API from '../../api/axios';
 import toast from 'react-hot-toast';
 import { useAuth } from '../../context/AuthContext';
@@ -28,7 +28,7 @@ const SendNotificationModal = ({ onClose }) => {
         ? [{ value: 'all', label: `All — ${user.department}`, icon: Users }]
         : [
             { value: 'all', label: 'All Faculty & HODs', icon: Users },
-            { value: 'department', label: 'Specific Department', icon: Building2 },
+            { value: 'department', label: 'Specific Department', icon: Buildings },
         ];
 
     const handleSubmit = async (e) => {
@@ -148,7 +148,7 @@ const SendNotificationModal = ({ onClose }) => {
                         onClick={() => setSendEmail(!sendEmail)}>
                         <div className="flex items-center gap-3">
                             <div className={`p-1.5 rounded-lg ${sendEmail ? 'bg-primary-600 text-white' : 'bg-dark-200 text-dark-500'}`}>
-                                <Mail className="w-4 h-4" />
+                                <Envelope className="w-4 h-4" />
                             </div>
                             <div>
                                 <p className={`text-sm font-medium ${sendEmail ? 'text-primary-700' : 'text-dark-600'}`}>
@@ -189,7 +189,7 @@ const SendNotificationModal = ({ onClose }) => {
                         >
                             {loading
                                 ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                : <Send className="w-4 h-4" />
+                                : <PaperPlaneRight className="w-4 h-4" />
                             }
                             {sendEmail ? 'Send + Email' : 'Send Notification'}
                         </button>

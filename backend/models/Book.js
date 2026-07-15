@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const publicationSchema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema({
     facultyId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -27,13 +27,14 @@ const publicationSchema = new mongoose.Schema({
         type: String,
         trim: true,
     },
+    publicationType: {
+        type: String,
+        enum: ['Book', 'Chapter'],
+        required: true,
+    },
     indexedType: {
         type: String,
         enum: ['SCI', 'Scopus', 'SEI', 'UGC', 'IEEE Conference', 'Other'],
-    },
-    publicationType: {
-        type: String,
-        enum: ['Journal', 'Conference', 'Book', 'Chapter'],
     },
     academicYear: {
         type: String,
@@ -46,9 +47,6 @@ const publicationSchema = new mongoose.Schema({
     publicationDate: {
         type: Date,
     },
-    conferenceDate: {
-        type: Date,
-    },
     fileUrl: {
         type: String,
     },
@@ -57,12 +55,12 @@ const publicationSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-publicationSchema.index({ facultyId: 1 });
-publicationSchema.index({ academicYear: 1 });
-publicationSchema.index({ publicationType: 1 });
-publicationSchema.index({ indexedType: 1 });
-publicationSchema.index({ researchDomain: 1 });
-publicationSchema.index({ facultyId: 1, academicYear: 1 });
-publicationSchema.index({ title: 'text', journalName: 'text', doi: 'text' });
+bookSchema.index({ facultyId: 1 });
+bookSchema.index({ academicYear: 1 });
+bookSchema.index({ publicationType: 1 });
+bookSchema.index({ indexedType: 1 });
+bookSchema.index({ researchDomain: 1 });
+bookSchema.index({ facultyId: 1, academicYear: 1 });
+bookSchema.index({ title: 'text', journalName: 'text', doi: 'text' });
 
-module.exports = mongoose.model('Publication', publicationSchema);
+module.exports = mongoose.model('Book', bookSchema);

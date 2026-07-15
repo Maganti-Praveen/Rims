@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../api/axios';
-import { Search, X, BookOpen, Lightbulb, Briefcase, Mic, Users } from 'lucide-react';
+import { MagnifyingGlass, X, BookOpen, Lightbulb, Briefcase, Microphone, Users } from '@phosphor-icons/react';
 
 const GlobalSearch = () => {
     const [query, setQuery] = useState('');
@@ -64,7 +64,7 @@ const GlobalSearch = () => {
         publications: BookOpen,
         patents: Lightbulb,
         workshops: Briefcase,
-        seminars: Mic,
+        seminars: Microphone,
         faculty: Users,
     };
 
@@ -78,19 +78,19 @@ const GlobalSearch = () => {
 
     return (
         <div ref={wrapperRef} className="relative">
-            <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-300" />
+            <div className="relative w-40 xs:w-48 sm:w-64">
+                <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-dark-400" />
                 <input
                     ref={inputRef}
                     type="text"
                     value={query}
                     onChange={(e) => handleSearch(e.target.value)}
                     placeholder="Search..."
-                    className="w-full pl-9 pr-8 py-2 bg-white/10 border border-white/20 rounded-lg text-sm text-white placeholder-primary-300 focus:outline-none focus:ring-2 focus:ring-accent-500 focus:bg-white/15"
+                    className="w-full pl-9 pr-8 py-1.5 bg-dark-50 border border-dark-200 rounded-xl text-xs sm:text-sm text-dark-800 placeholder-dark-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all duration-200"
                 />
                 {query && (
-                    <button onClick={() => { setQuery(''); setResults(null); setOpen(false); }} className="absolute right-2 top-1/2 -translate-y-1/2">
-                        <X className="w-4 h-4 text-primary-300 hover:text-white" />
+                    <button onClick={() => { setQuery(''); setResults(null); setOpen(false); }} className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                        <X className="w-3.5 h-3.5 text-dark-400 hover:text-dark-600" />
                     </button>
                 )}
             </div>

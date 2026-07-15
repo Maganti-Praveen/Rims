@@ -3,18 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import API from '../api/axios';
 import {
-    BookOpen, Lightbulb, Award, Briefcase, Mic,
-    ArrowRight, FileText, TrendingUp
-} from 'lucide-react';
+    BookOpen, Lightbulb, Certificate, Briefcase, Microphone,
+    ArrowRight, FileText, TrendUp, Star, GraduationCap
+} from '@phosphor-icons/react';
 import ReminderBanner from '../components/ui/ReminderBanner';
 import useAcademicYears from '../hooks/useAcademicYears';
 
 const STATS_CONFIG = [
     { key: 'publications',   label: 'Pubs',    icon: BookOpen,  grad: 'from-primary-500 to-primary-600' },
+    { key: 'books',          label: 'Books',   icon: BookOpen,  grad: 'from-amber-500   to-amber-600'   },
     { key: 'patents',        label: 'Patents',  icon: Lightbulb, grad: 'from-accent-500  to-accent-600'  },
     { key: 'workshops',      label: 'Workshops',icon: Briefcase, grad: 'from-rose-500    to-rose-600'    },
-    { key: 'seminars',       label: 'Seminars', icon: Mic,       grad: 'from-violet-500  to-violet-600'  },
-    { key: 'certifications', label: 'Certs',    icon: Award,     grad: 'from-sky-500     to-sky-600'     },
+    { key: 'seminars',       label: 'Seminars', icon: Microphone,       grad: 'from-violet-500  to-violet-600'  },
+    { key: 'certifications', label: 'Certs',    icon: Certificate,     grad: 'from-sky-500     to-sky-600'     },
 ];
 
 const Home = () => {
@@ -24,11 +25,13 @@ const Home = () => {
 
     const [yearFilter, setYearFilter] = useState('');
     const [allPubs, setAllPubs]       = useState([]);
+    const [allBooks, setAllBooks]     = useState([]);
     const [allPatents, setAllPatents] = useState([]);
     const [allWorkshops, setAllWorkshops] = useState([]);
     const [allSeminars, setAllSeminars]   = useState([]);
     const [allCerts, setAllCerts]         = useState([]);
     const [education, setEducation]       = useState([]);
+    const [researchScore, setResearchScore] = useState(0);
     const [loading, setLoading]           = useState(true);
 
     const facultyId = user?._id;
@@ -39,20 +42,24 @@ const Home = () => {
         setLoading(true);
         try {
             const params = yearFilter ? { academicYear: yearFilter } : {};
-            const [pubRes, patRes, wsRes, semRes, certRes, eduRes] = await Promise.all([
+            const [pubRes, bookRes, patRes, wsRes, semRes, certRes, eduRes, scoreRes] = await Promise.all([
                 API.get(`/publications/faculty/${facultyId}`, { params }),
+                API.get(`/books/faculty/${facultyId}`, { params }),
                 API.get(`/patents/faculty/${facultyId}`, { params }),
                 API.get(`/workshops/faculty/${facultyId}`, { params }),
                 API.get(`/seminars/faculty/${facultyId}`, { params }),
                 API.get(`/certifications/${facultyId}`),
                 API.get(`/education/${facultyId}`),
+                API.get(`/scores/faculty/${facultyId}`),
             ]);
             setAllPubs(pubRes.data.data);
+            setAllBooks(bookRes.data.data);
             setAllPatents(patRes.data.data);
             setAllWorkshops(wsRes.data.data);
             setAllSeminars(semRes.data.data);
             setAllCerts(certRes.data.data);
             setEducation(eduRes.data.data);
+            setResearchScore(scoreRes.data.data.score || 0);
         } catch (err) { console.error(err); }
         finally { setLoading(false); }
     };
@@ -62,7 +69,7 @@ const Home = () => {
     const researchUrl  = (cat) => `/my-research?category=${cat}${yearFilter ? `&year=${encodeURIComponent(yearFilter)}` : ''}`;
 
     const counts = {
-        publications: allPubs.length, patents: allPatents.length,
+        publications: allPubs.length, books: allBooks.length, patents: allPatents.length,
         workshops: allWorkshops.length, seminars: allSeminars.length,
         certifications: allCerts.length,
     };
@@ -93,7 +100,7 @@ const Home = () => {
                     <div className="min-w-0 flex-1">
                         <p className="text-orange-200 text-xs font-medium mb-0.5">Research Dashboard</p>
                         <h1 className="font-heading text-lg sm:text-2xl font-bold text-white leading-tight truncate">
-                            Welcome, {user?.name?.split(' ')[0]}! 👋
+                            Welcome, {user?.name?.split(' ')[0]}!
                         </h1>
                         <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
                             <span className="text-orange-200 text-xs">{user?.department}</span>
@@ -103,10 +110,13 @@ const Home = () => {
                                 </span>
                             )}
                             {highestEdu && (
-                                <span className="px-2 py-0.5 bg-white/15 text-orange-100 text-[10px] font-medium rounded-full border border-white/20 hidden sm:inline-flex">
-                                    🎓 {highestEdu.degree}
+                                <span className="px-2 py-0.5 bg-white/15 text-orange-100 text-[10px] font-medium rounded-full border border-white/20 hidden sm:inline-flex items-center">
+                                    <GraduationCap className="w-3.5 h-3.5 text-orange-100 mr-1" /> {highestEdu.degree}
                                 </span>
                             )}
+                            <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-100 text-[10px] font-bold rounded-full border border-yellow-400/30 flex items-center gap-1 shadow-sm">
+                                <Star className="w-3 h-3 text-yellow-400" weight="fill" /> Research Score: {researchScore}
+                            </span>
                         </div>
                     </div>
                     <Link
@@ -119,9 +129,9 @@ const Home = () => {
                     </Link>
                 </div>
 
-                {/* Stats strip — scrollable on mobile, 5-col on desktop */}
+                {/* Stats strip — scrollable on mobile, 6-col on desktop */}
                 <div className="border-t border-white/15 overflow-x-auto">
-                    <div className="flex min-w-max sm:min-w-0 sm:grid sm:grid-cols-5">
+                    <div className="flex min-w-max sm:min-w-0 sm:grid sm:grid-cols-6">
                         {STATS_CONFIG.map((s) => (
                             <button
                                 key={s.key}
@@ -144,7 +154,7 @@ const Home = () => {
             <div>
                 <div className="flex items-center justify-between mb-3 gap-2">
                     <div className="flex items-center gap-1.5 min-w-0">
-                        <TrendingUp className="w-4 h-4 text-primary-500 shrink-0" />
+                        <TrendUp className="w-4 h-4 text-primary-500 shrink-0" />
                         <h2 className="text-xs sm:text-sm font-bold text-dark-700 uppercase tracking-wider truncate">
                             Research Activity
                             {yearFilter && <span className="text-primary-500 normal-case font-semibold"> — {yearFilter}</span>}
@@ -236,7 +246,7 @@ const Home = () => {
                                 {allSeminars.slice(0, 3).map((sem) => (
                                     <div key={sem._id} className="flex items-start gap-3 px-4 py-3 hover:bg-violet-50/40 transition-colors">
                                         <div className="w-7 h-7 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 mt-0.5">
-                                            <Mic className="w-3.5 h-3.5" />
+                                            <Microphone className="w-3.5 h-3.5" />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm font-medium text-dark-900 truncate">{sem.topic}</p>
@@ -259,7 +269,7 @@ const Home = () => {
                 {/* Certifications */}
                 <RecentCard
                     title="Certifications" viewUrl={researchUrl('certifications')}
-                    icon={Award} grad="from-sky-500 to-sky-600" iconBg="bg-sky-100" iconText="text-sky-600"
+                    icon={Certificate} grad="from-sky-500 to-sky-600" iconBg="bg-sky-100" iconText="text-sky-600"
                     hoverBg="hover:bg-sky-50/40" empty="No certifications yet"
                     items={allCerts.slice(0, 5)}
                     renderItem={(cert) => ({

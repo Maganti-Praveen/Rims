@@ -4,9 +4,9 @@ import API from '../api/axios';
 import StatCard from '../components/dashboard/StatCard';
 import DepartmentChart from '../components/dashboard/DepartmentChart';
 import {
-    Users, BookOpen, Lightbulb, Award, Mic, FileCheck,
-    TrendingUp, Download, FileSpreadsheet, Trophy, Filter
-} from 'lucide-react';
+    Users, BookOpen, Lightbulb, Briefcase, Microphone, Certificate,
+    TrendUp, DownloadSimple, FileXls, Trophy, Funnel
+} from '@phosphor-icons/react';
 import {
     Chart as ChartJS, CategoryScale, LinearScale,
     PointElement, LineElement, Title, Tooltip, Legend, Filler
@@ -120,11 +120,11 @@ const Dashboard = () => {
                 <div className="flex flex-wrap gap-2">
                     <button onClick={() => handleExport('excel')} disabled={exporting}
                         className="flex items-center gap-2 bg-white/20 hover:bg-white/30 border border-white/30 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all backdrop-blur-sm">
-                        <Download className="w-4 h-4" /> Export
+                        <DownloadSimple className="w-4 h-4" /> Export
                     </button>
                     <button onClick={() => handleExport('naac')} disabled={exporting}
                         className="flex items-center gap-2 bg-white text-primary-700 hover:bg-orange-50 px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition-all">
-                        <FileSpreadsheet className="w-4 h-4" /> NAAC
+                        <FileXls className="w-4 h-4" /> NAAC
                     </button>
                 </div>
             </div>
@@ -132,7 +132,7 @@ const Dashboard = () => {
             {/* ── Filters ── */}
             <div className="card p-4" data-aos="fade-up">
                 <div className="flex flex-wrap gap-3 items-center">
-                    <Filter className="w-4 h-4 text-primary-500 shrink-0" />
+                    <Funnel className="w-4 h-4 text-primary-500 shrink-0" />
                     {user.role === 'admin' && (
                         <select value={filters.department}
                             onChange={(e) => setFilters({ ...filters, department: e.target.value })}
@@ -168,9 +168,9 @@ const Dashboard = () => {
                         <StatCard title="Faculty"       value={stats?.totalFaculty       || 0} icon={Users}     color="orange"  linkTo="/faculty"                 delay={0}   />
                         <StatCard title="Publications"  value={stats?.totalPublications  || 0} icon={BookOpen}  color="emerald" linkTo="/explore?tab=publications" delay={60}  />
                         <StatCard title="Patents"       value={stats?.totalPatents       || 0} icon={Lightbulb} color="amber"   linkTo="/explore?tab=patents"      delay={120} />
-                        <StatCard title="Workshops"     value={stats?.totalWorkshops     || 0} icon={Award}     color="rose"    linkTo="/explore?tab=workshops"    delay={180} />
-                        <StatCard title="Seminars"      value={stats?.totalSeminars      || 0} icon={Mic}       color="violet"  linkTo="/explore?tab=seminars"     delay={240} />
-                        <StatCard title="Certifications" value={stats?.totalCertifications|| 0} icon={FileCheck} color="sky"     linkTo="/explore?tab=certifications" delay={300} />
+                        <StatCard title="Workshops"     value={stats?.totalWorkshops     || 0} icon={Briefcase}     color="rose"    linkTo="/explore?tab=workshops"    delay={180} />
+                        <StatCard title="Seminars"      value={stats?.totalSeminars      || 0} icon={Microphone}       color="violet"  linkTo="/explore?tab=seminars"     delay={240} />
+                        <StatCard title="Certifications" value={stats?.totalCertifications|| 0} icon={Certificate} color="sky"     linkTo="/explore?tab=certifications" delay={300} />
                     </div>
 
                     {/* ── Charts row ── */}
@@ -179,7 +179,7 @@ const Dashboard = () => {
                         <div className="card p-5" data-aos="fade-up">
                             <div className="flex items-center gap-2 mb-4">
                                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
-                                    <TrendingUp className="w-3.5 h-3.5 text-white" />
+                                    <TrendUp className="w-3.5 h-3.5 text-white" />
                                 </div>
                                 <h2 className="font-semibold text-dark-900">Department-wise Output</h2>
                             </div>
@@ -190,7 +190,7 @@ const Dashboard = () => {
                         <div className="card p-5" data-aos="fade-up" data-aos-delay="80">
                             <div className="flex items-center gap-2 mb-4">
                                 <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center">
-                                    <TrendingUp className="w-3.5 h-3.5 text-white" />
+                                    <TrendUp className="w-3.5 h-3.5 text-white" />
                                 </div>
                                 <h2 className="font-semibold text-dark-900">Year-over-Year Trends</h2>
                             </div>
