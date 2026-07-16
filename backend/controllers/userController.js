@@ -7,6 +7,7 @@ const Education = require('../models/Education');
 const Certification = require('../models/Certification');
 const logActivity = require('../utils/logActivity');
 const { saveToMemory, deleteFromMemory } = require('../middleware/upload');
+const { getAccessibleDepartments } = require('../utils/scopeHelper');
 
 // @desc    Get all users (filtered by role/dept)
 // @route   GET /api/users
@@ -15,9 +16,12 @@ exports.getUsers = async (req, res, next) => {
         let query = {};
         const { department, role, search } = req.query;
 
-        // HOD can only see their department
+        // HOD can only see their department, Dean sees departments in their school
         if (req.user.role === 'hod') {
             query.department = req.user.department;
+        } else if (req.user.role === 'dean') {
+            const accessibleDepts = await getAccessibleDepartments(req.user);
+            query.department = { $in: accessibleDepts };
         } else if (department) {
             query.department = department;
         }
@@ -50,9 +54,22 @@ exports.getUser = async (req, res, next) => {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
+        // Faculty can only view their own full profile
+        if (req.user.role === 'faculty' && req.user._id.toString() !== req.params.id) {
+            return res.status(403).json({ success: false, message: 'Not authorized to view other faculty profiles' });
+        }
+
         // HOD can only view users in their department
         if (req.user.role === 'hod' && user.department !== req.user.department) {
-            return res.status(403).json({ success: false, message: 'Not authorized to view this user' });
+            return res.status(403).json({ success: false, message: 'Not authorized to view users outside your department' });
+        }
+
+        // Dean can only view users in their school
+        if (req.user.role === 'dean') {
+            const accessibleDepts = await getAccessibleDepartments(req.user);
+            if (!accessibleDepts.includes(user.department)) {
+                return res.status(403).json({ success: false, message: 'Not authorized to view users outside your school' });
+            }
         }
 
         res.json({ success: true, data: user });
@@ -101,6 +118,28 @@ exports.updateUser = async (req, res, next) => {
     }
 };
 
+// Helper to clean up all uploaded files associated with faculty IDs
+const cleanupUserFiles = async (facultyIds) => {
+    try {
+        const ids = Array.isArray(facultyIds) ? facultyIds : [facultyIds];
+        const [users, pubs, pats, works, certs] = await Promise.all([
+            User.find({ _id: { $in: ids } }).select('profilePicture').lean(),
+            Publication.find({ facultyId: { $in: ids } }).select('fileUrl').lean(),
+            Patent.find({ facultyId: { $in: ids } }).select('fileUrl').lean(),
+            Workshop.find({ facultyId: { $in: ids } }).select('certificateUrl').lean(),
+            Certification.find({ facultyId: { $in: ids } }).select('fileUrl').lean(),
+        ]);
+
+        users.forEach(u => u.profilePicture && deleteFromMemory(u.profilePicture));
+        pubs.forEach(p => p.fileUrl && deleteFromMemory(p.fileUrl));
+        pats.forEach(p => p.fileUrl && deleteFromMemory(p.fileUrl));
+        works.forEach(w => w.certificateUrl && deleteFromMemory(w.certificateUrl));
+        certs.forEach(c => c.fileUrl && deleteFromMemory(c.fileUrl));
+    } catch (err) {
+        console.error('Error cleaning up user files:', err.message);
+    }
+};
+
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 exports.deleteUser = async (req, res, next) => {
@@ -108,6 +147,21 @@ exports.deleteUser = async (req, res, next) => {
         const user = await User.findById(req.params.id);
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        // Prevent deleting yourself
+        if (req.params.id === req.user._id.toString()) {
+            return res.status(400).json({ success: false, message: 'You cannot delete your own account' });
+        }
+
+        // HOD can only delete faculty in their own department
+        if (req.user.role === 'hod' && (user.department !== req.user.department || user.role !== 'faculty')) {
+            return res.status(403).json({ success: false, message: 'HOD can only delete faculty in their own department' });
+        }
+
+        // Prevent deleting admin accounts
+        if (user.role === 'admin') {
+            return res.status(400).json({ success: false, message: 'Admin accounts cannot be deleted' });
         }
 
         await logActivity({
@@ -118,6 +172,9 @@ exports.deleteUser = async (req, res, next) => {
             targetId: user._id,
             details: `Deleted user ${user.name}`,
         });
+
+        // Clean up files from disk before deleting DB records
+        await cleanupUserFiles(req.params.id);
 
         // Cascade delete all related data
         await Promise.all([
@@ -162,6 +219,12 @@ exports.bulkDeleteUsers = async (req, res, next) => {
 
         const users = await User.find({ _id: { $in: ids } }).lean();
 
+        // Prevent deleting admin accounts
+        const hasAdmin = users.some(u => u.role === 'admin');
+        if (hasAdmin) {
+            return res.status(400).json({ success: false, message: 'Admin accounts cannot be deleted' });
+        }
+
         for (const u of users) {
             await logActivity({
                 userId: req.user._id,
@@ -172,6 +235,9 @@ exports.bulkDeleteUsers = async (req, res, next) => {
                 details: `Bulk deleted user ${u.name}`,
             });
         }
+
+        // Clean up files from disk before deleting DB records
+        await cleanupUserFiles(ids);
 
         // Cascade delete all related data for all users
         await Promise.all([

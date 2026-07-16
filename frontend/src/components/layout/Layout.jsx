@@ -147,11 +147,10 @@ const Layout = ({ children }) => {
 
                                 {/* Dropdown panel */}
                                 {dropOpen && (
-                                    <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl
-                                        border border-dark-100 overflow-hidden z-50 animate-fade-in">
+                                    <div className="absolute right-0 top-full mt-2 w-56 glass overflow-hidden z-50 animate-fade-in">
 
                                         {/* User info header */}
-                                        <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-orange-50 border-b border-primary-100">
+                                        <div className="px-4 py-3 bg-gradient-to-r from-primary-50/75 to-orange-50/75 border-b border-primary-100/50">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-700
                                                     text-white flex items-center justify-center text-sm font-bold shrink-0 shadow-sm">

@@ -27,21 +27,45 @@ const DepartmentChart = ({ data }) => {
             {
                 label: 'Publications',
                 data: data.map(d => d.publications || 0),
-                backgroundColor: 'rgba(249,115,22,0.85)',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(249,115,22,0.85)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(249,115,22,1)');
+                    grad.addColorStop(1, 'rgba(249,115,22,0.45)');
+                    return grad;
+                },
                 borderRadius: 6,
                 borderSkipped: false,
             },
             {
                 label: 'Patents',
                 data: data.map(d => d.patents || 0),
-                backgroundColor: 'rgba(245,158,11,0.85)',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(245,158,11,0.85)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(245,158,11,1)');
+                    grad.addColorStop(1, 'rgba(245,158,11,0.45)');
+                    return grad;
+                },
                 borderRadius: 6,
                 borderSkipped: false,
             },
             {
                 label: 'Workshops',
                 data: data.map(d => d.workshops || 0),
-                backgroundColor: 'rgba(16,185,129,0.85)',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(16,185,129,0.85)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(16,185,129,1)');
+                    grad.addColorStop(1, 'rgba(16,185,129,0.45)');
+                    return grad;
+                },
                 borderRadius: 6,
                 borderSkipped: false,
             },

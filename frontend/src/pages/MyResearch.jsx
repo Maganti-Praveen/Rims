@@ -9,6 +9,22 @@ import {
     ArrowLeft, ArrowSquareOut, MagnifyingGlass, Funnel, Plus
 } from '@phosphor-icons/react';
 import useAcademicYears from '../hooks/useAcademicYears';
+import EmptyState from '../components/ui/EmptyState';
+
+const ResearchSkeleton = () => (
+    <div className="space-y-3 animate-pulse">
+        {[...Array(3)].map((_, i) => (
+            <div key={i} className="flex items-start gap-4 p-4 rounded-xl bg-white border border-dark-100">
+                <div className="w-9 h-9 rounded-xl bg-dark-100/60 shrink-0" />
+                <div className="flex-1 space-y-2">
+                    <div className="h-4 w-2/3 bg-dark-200/50 rounded" />
+                    <div className="h-3 w-1/3 bg-dark-200/40 rounded" />
+                </div>
+                <div className="w-8 h-8 rounded-lg bg-dark-50 shrink-0" />
+            </div>
+        ))}
+    </div>
+);
 
 const CATEGORIES = [
     { key: 'publications',   label: 'Publications',  icon: BookOpen,  grad: 'from-primary-500 to-primary-600', bg: 'bg-primary-50',  text: 'text-primary-600',  border: 'border-primary-200',  hover: 'hover:border-primary-300'  },
@@ -583,29 +599,19 @@ const MyResearch = () => {
 
             {/* ── Content ── */}
             {loading ? (
-                <div className="flex items-center justify-center h-40">
-                    <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
-                </div>
+                <ResearchSkeleton />
             ) : filtered.length > 0 ? (
                 <div className="space-y-3">
                     {filtered.map(renderRow)}
                 </div>
              ) : (
-                <div className="card p-12 text-center" data-aos="fade-up">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${category.grad} rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-orange-sm`}>
-                        <category.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <p className="text-dark-700 font-semibold">No {category.label.toLowerCase()} found</p>
-                    <p className="text-dark-400 text-sm mt-1">
-                        {yearParam ? `No records for ${yearParam}. Try a different year.` : 'No records added yet.'}
-                    </p>
-                    <button
-                        onClick={openAddModal}
-                        className="btn-primary mt-5 inline-flex items-center gap-2 text-sm mx-auto animate-pulse-subtle"
-                    >
-                        <Plus className="w-4 h-4" /> Add {category.label.replace('Books / Chapters', 'Book/Chapter').replace(/s$/, '')}
-                    </button>
-                </div>
+                <EmptyState
+                    title={`No ${category.label.toLowerCase()} found`}
+                    description={yearParam ? `You don't have any research records registered for the Academic Year ${yearParam}.` : `You haven't uploaded any records under this category yet.`}
+                    icon={category.icon}
+                    actionLabel={`Add ${category.label.replace('Books / Chapters', 'Book/Chapter').replace(/s$/, '')}`}
+                    onAction={openAddModal}
+                />
             )}
 
             {/* CRUD Modal */}

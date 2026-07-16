@@ -4,7 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import {
     Layout, Users, UserPlus, ClipboardText,
     List, X, GraduationCap, CaretLeft, House,
-    Compass, ArrowsLeftRight, BookOpen, Trophy, Sliders
+    Compass, ArrowsLeftRight, BookOpen, Trophy, Sliders, Buildings, Gear
 } from '@phosphor-icons/react';
 import collegeLogo from '../../assets/rcee.png';
 
@@ -15,18 +15,20 @@ const Sidebar = () => {
     const navigate = useNavigate();
 
     const navItems = [
-        { to: '/home',           label: 'Home',           icon: House,          roles: ['faculty', 'hod'] },
-        { to: '/my-research',    label: 'My Research',    icon: BookOpen,       roles: ['faculty', 'hod'] },
-        { to: '/dashboard',      label: 'Dashboard',      icon: Layout,         roles: ['admin', 'hod'] },
-        { to: '/explore',        label: 'Explore',        icon: Compass,        roles: ['admin', 'hod'] },
-        { to: '/rankings',       label: 'Leaderboard',    icon: Trophy,        roles: ['admin', 'hod', 'faculty'] },
-        { to: '/faculty',        label: 'Faculty',        icon: Users,          roles: ['admin', 'hod'] },
-        { to: '/compare-faculty',label: 'Compare Faculty',icon: Users,          roles: ['admin', 'hod'] },
-        { to: '/compare',        label: 'Compare Depts',  icon: ArrowsLeftRight, roles: ['admin'] },
-        { to: '/create-account', label: 'Create Account', icon: UserPlus,       roles: ['admin', 'hod'] },
-        { to: '/score-settings', label: 'Score Settings', icon: Sliders,       roles: ['admin'] },
-        { to: '/my-profile',     label: 'My Profile',     icon: GraduationCap,  roles: ['admin', 'faculty', 'hod'] },
-        { to: '/activity-logs',  label: 'Activity Logs',  icon: ClipboardText,  roles: ['admin'] },
+        { to: '/home',           label: 'Home',           icon: House,          roles: ['faculty', 'hod', 'dean'] },
+        { to: '/my-research',    label: 'My Research',    icon: BookOpen,       roles: ['faculty', 'hod', 'dean'] },
+        { to: '/dashboard',      label: 'Dashboard',      icon: Layout,         roles: ['super_admin', 'admin', 'dean', 'hod'] },
+        { to: '/schools',        label: 'Schools',        icon: Buildings,      roles: ['super_admin', 'admin'] },
+        { to: '/explore',        label: 'Explore',        icon: Compass,        roles: ['super_admin', 'admin', 'dean', 'hod'] },
+        { to: '/rankings',       label: 'Leaderboard',    icon: Trophy,        roles: ['super_admin', 'admin', 'dean', 'hod', 'faculty'] },
+        { to: '/faculty',        label: 'Faculty',        icon: Users,          roles: ['super_admin', 'admin', 'dean', 'hod'] },
+        { to: '/compare-faculty',label: 'Compare Faculty',icon: Users,          roles: ['super_admin', 'admin', 'dean', 'hod'] },
+        { to: '/compare',        label: 'Compare Depts',  icon: ArrowsLeftRight, roles: ['super_admin', 'admin', 'dean'] },
+        { to: '/create-account', label: 'Create Account', icon: UserPlus,       roles: ['super_admin', 'admin', 'hod'] },
+        { to: '/site-settings',  label: 'Site Settings',  icon: Gear,           roles: ['super_admin', 'admin'] },
+        { to: '/score-settings', label: 'Score Settings', icon: Sliders,       roles: ['super_admin', 'admin'] },
+        { to: '/my-profile',     label: 'My Profile',     icon: GraduationCap,  roles: ['super_admin', 'admin', 'dean', 'faculty', 'hod'] },
+        { to: '/activity-logs',  label: 'Activity Logs',  icon: ClipboardText,  roles: ['super_admin', 'admin', 'dean'] },
     ];
 
     const filteredNav = navItems.filter((item) => item.roles.includes(user?.role));
@@ -61,22 +63,25 @@ const Sidebar = () => {
                         to={item.to}
                         onClick={() => setMobileOpen(false)}
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
+                            `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 relative group overflow-hidden
                             ${isActive
-                                ? 'bg-gradient-to-r from-primary-50 to-orange-50 text-primary-700 border border-primary-200 shadow-orange-sm'
-                                : 'text-dark-500 hover:bg-primary-50 hover:text-primary-700'
+                                ? 'bg-gradient-to-r from-primary-50/80 to-orange-50/50 text-primary-700 border border-primary-200 shadow-orange-sm font-semibold'
+                                : 'text-dark-500 hover:bg-primary-50/50 hover:text-primary-700 hover:translate-x-1'
                             }`
                         }
                         title={collapsed ? item.label : undefined}
                     >
                         {({ isActive }) => (
                             <>
-                                <span className={`shrink-0 p-1.5 rounded-lg ${isActive ? 'bg-primary-500 text-white' : 'text-dark-400'}`}>
+                                {isActive && (
+                                    <span className="absolute left-0 top-2.5 bottom-2.5 w-1 rounded-r-full bg-gradient-to-b from-primary-500 to-primary-700" />
+                                )}
+                                <span className={`shrink-0 p-1.5 rounded-lg transition-all duration-300 group-hover:scale-105 ${isActive ? 'bg-primary-500 text-white' : 'text-dark-400 bg-dark-50 border border-dark-100 group-hover:bg-primary-100 group-hover:text-primary-600 group-hover:border-primary-200'}`}>
                                     <item.icon className="w-4 h-4" />
                                 </span>
                                 {!collapsed && <span>{item.label}</span>}
                                 {isActive && !collapsed && (
-                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500" />
+                                    <span className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" />
                                 )}
                             </>
                         )}

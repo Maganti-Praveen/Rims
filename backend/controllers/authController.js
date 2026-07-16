@@ -131,7 +131,8 @@ exports.bulkRegister = async (req, res, next) => {
                 else if (k === 'designation') data.designation = String(v).trim();
             });
 
-            if (!data.role || !['faculty', 'hod'].includes(data.role)) data.role = 'faculty';
+            const validRoles = ['faculty', 'hod', 'dean', 'super_admin', 'admin'];
+            if (!data.role || !validRoles.includes(data.role)) data.role = 'faculty';
 
             if (req.user.role === 'hod') {
                 data.role = 'faculty';
@@ -144,9 +145,10 @@ exports.bulkRegister = async (req, res, next) => {
                 continue;
             }
 
-            // Validate email domain
-            if (data.email && !data.email.endsWith('@rcee.ac.in')) {
-                results.errors.push({ row: rowNum, name: data.name || '—', reason: 'Email must end with @rcee.ac.in' });
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (data.email && !emailRegex.test(data.email)) {
+                results.errors.push({ row: rowNum, name: data.name || '—', reason: 'Invalid email address format' });
                 continue;
             }
 

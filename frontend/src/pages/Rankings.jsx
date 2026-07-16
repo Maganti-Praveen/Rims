@@ -148,9 +148,58 @@ const Rankings = () => {
             </div>
 
             {loading ? (
-                <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dark-100 shadow-sm">
-                    <div className="w-10 h-10 border-4 border-primary-200 border-t-orange-600 rounded-full animate-spin" />
-                    <p className="text-dark-500 text-sm mt-3 font-medium">Fetching leaderboard standings...</p>
+                <div className="space-y-6 animate-pulse">
+                    {/* Visual Podium Skeleton */}
+                    <div className="flex flex-col md:flex-row items-end justify-center gap-6 py-6 px-4 bg-dark-50/20 rounded-2xl border border-dark-100">
+                        {/* 2nd place skeleton */}
+                        <div className="flex flex-col items-center p-6 rounded-2xl border border-dark-200 bg-white w-full md:w-64 h-64 justify-between md:order-1">
+                            <div className="w-16 h-16 rounded-full bg-dark-100" />
+                            <div className="space-y-2 w-full flex flex-col items-center">
+                                <div className="h-4 w-2/3 bg-dark-200/80 rounded" />
+                                <div className="h-3 w-1/3 bg-dark-100 rounded" />
+                            </div>
+                            <div className="h-8 w-24 bg-dark-100 rounded-full" />
+                        </div>
+                        {/* 1st place skeleton */}
+                        <div className="flex flex-col items-center p-6 rounded-2xl border border-dark-200 bg-white w-full md:w-64 h-72 justify-between md:order-2">
+                            <div className="w-20 h-20 rounded-full bg-dark-100" />
+                            <div className="space-y-2 w-full flex flex-col items-center">
+                                <div className="h-4 w-2/3 bg-dark-200/80 rounded" />
+                                <div className="h-3 w-1/3 bg-dark-100 rounded" />
+                            </div>
+                            <div className="h-8 w-24 bg-dark-100 rounded-full" />
+                        </div>
+                        {/* 3rd place skeleton */}
+                        <div className="flex flex-col items-center p-6 rounded-2xl border border-dark-200 bg-white w-full md:w-64 h-56 justify-between md:order-3">
+                            <div className="w-14 h-14 rounded-full bg-dark-100" />
+                            <div className="space-y-2 w-full flex flex-col items-center">
+                                <div className="h-4 w-2/3 bg-dark-200/80 rounded" />
+                                <div className="h-3 w-1/3 bg-dark-100 rounded" />
+                            </div>
+                            <div className="h-8 w-24 bg-dark-100 rounded-full" />
+                        </div>
+                    </div>
+
+                    {/* Table list skeleton */}
+                    <div className="card overflow-hidden bg-white border border-dark-100">
+                        <div className="px-5 py-4 border-b border-dark-100 bg-dark-50/50">
+                            <div className="h-4 w-32 bg-dark-200/80 rounded" />
+                        </div>
+                        <div className="p-5 space-y-4">
+                            {[...Array(5)].map((_, i) => (
+                                <div key={i} className="flex items-center justify-between py-2 border-b border-dark-50 last:border-0">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-dark-100 shrink-0" />
+                                        <div className="space-y-2">
+                                            <div className="h-3.5 w-32 bg-dark-200/80 rounded" />
+                                            <div className="h-3 w-20 bg-dark-100 rounded" />
+                                        </div>
+                                    </div>
+                                    <div className="h-4 w-12 bg-dark-200/80 rounded" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <div className="space-y-6">

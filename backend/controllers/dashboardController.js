@@ -6,6 +6,7 @@ const Workshop = require('../models/Workshop');
 const Seminar = require('../models/Seminar');
 const Certification = require('../models/Certification');
 const AcademicYear = require('../models/AcademicYear');
+const { getAccessibleDepartments } = require('../utils/scopeHelper');
 
 // @desc    Get dashboard stats
 // @route   GET /api/dashboard/stats
@@ -15,9 +16,12 @@ exports.getStats = async (req, res, next) => {
         let entryQuery = {};
         const { department, academicYear } = req.query;
 
-        // HOD can only see their department
+        // Scope check for HOD vs Dean vs Admin
         if (req.user.role === 'hod') {
             facultyQuery.department = req.user.department;
+        } else if (req.user.role === 'dean') {
+            const accessibleDepts = await getAccessibleDepartments(req.user);
+            facultyQuery.department = { $in: accessibleDepts };
         } else if (department) {
             facultyQuery.department = department;
         }
@@ -66,6 +70,8 @@ exports.getChartData = async (req, res, next) => {
         let departments;
         if (req.user.role === 'hod') {
             departments = [req.user.department];
+        } else if (req.user.role === 'dean') {
+            departments = await getAccessibleDepartments(req.user);
         } else {
             departments = await User.distinct('department');
         }
@@ -113,6 +119,10 @@ exports.getYearTrend = async (req, res, next) => {
         if (req.user.role === 'hod') {
             const facultyIds = await User.find({ department: req.user.department }).distinct('_id');
             facultyFilter = { facultyId: { $in: facultyIds } };
+        } else if (req.user.role === 'dean') {
+            const depts = await getAccessibleDepartments(req.user);
+            const facultyIds = await User.find({ department: { $in: depts } }).distinct('_id');
+            facultyFilter = { facultyId: { $in: facultyIds } };
         }
 
         const trends = await Promise.all(
@@ -139,9 +149,12 @@ exports.getYearTrend = async (req, res, next) => {
 // @route   GET /api/dashboard/top-contributors
 exports.getTopContributors = async (req, res, next) => {
     try {
-        let userQuery = { role: { $in: ['faculty', 'hod'] } };
+        let userQuery = { role: { $in: ['faculty', 'hod', 'dean'] } };
         if (req.user.role === 'hod') {
             userQuery.department = req.user.department;
+        } else if (req.user.role === 'dean') {
+            const depts = await getAccessibleDepartments(req.user);
+            userQuery.department = { $in: depts };
         }
 
         const faculty = await User.find(userQuery).select('name department').lean();

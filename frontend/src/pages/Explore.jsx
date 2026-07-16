@@ -9,6 +9,28 @@ import {
 } from '@phosphor-icons/react';
 import useAcademicYears from '../hooks/useAcademicYears';
 import SendNotificationModal from '../components/ui/SendNotificationModal';
+import EmptyState from '../components/ui/EmptyState';
+
+const ExploreSkeleton = () => (
+    <div className="card animate-pulse bg-white border border-dark-100">
+        <div className="p-4 border-b border-dark-100 flex items-center gap-2">
+            <div className="w-5 h-5 bg-dark-200/80 rounded" />
+            <div className="h-4 w-40 bg-dark-200/80 rounded" />
+        </div>
+        <div className="p-5 space-y-4">
+            {[...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between py-3 border-b border-dark-50 last:border-0">
+                    <div className="flex-1 space-y-2 max-w-sm">
+                        <div className="h-4 w-3/4 bg-dark-200/80 rounded" />
+                        <div className="h-3 w-1/2 bg-dark-100 rounded" />
+                    </div>
+                    <div className="w-24 h-4 bg-dark-200/60 rounded" />
+                    <div className="w-16 h-5 bg-dark-100 rounded-full" />
+                </div>
+            ))}
+        </div>
+    </div>
+);
 
 const Explore = () => {
     const { user } = useAuth();
@@ -245,9 +267,7 @@ const Explore = () => {
             </div>
 
             {loading ? (
-                <div className="flex items-center justify-center h-64">
-                    <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
-                </div>
+                <ExploreSkeleton />
             ) : (
                 <>
                     {/* Publications Tab */}
@@ -288,7 +308,7 @@ const Explore = () => {
                                                         <td className="py-3 px-4">
                                                             {pub.fileUrl ? (
                                                                 <a href={getFileUrl(pub.fileUrl)} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:text-primary-700">
-                                                                    <ExternalLink className="w-4 h-4" />
+                                                                    <ArrowSquareOut className="w-4 h-4" />
                                                                 </a>
                                                             ) : '-'}
                                                         </td>
@@ -319,7 +339,11 @@ const Explore = () => {
                                     </div>
                                 </>
                             ) : (
-                                <p className="text-dark-400 text-sm text-center py-12">No publications found</p>
+                                <EmptyState
+                                    title="No publications found"
+                                    description="No publication entries match your active search term or filter criteria."
+                                    icon={BookOpen}
+                                />
                             )}
                         </div>
                     )}
@@ -393,7 +417,11 @@ const Explore = () => {
                                     </div>
                                 </>
                             ) : (
-                                <p className="text-dark-400 text-sm text-center py-12">No books or chapters found</p>
+                                <EmptyState
+                                    title="No books or chapters found"
+                                    description="No books or book chapters match your active search term or filter criteria."
+                                    icon={BookOpen}
+                                />
                             )}
                         </div>
                     )}
@@ -464,7 +492,11 @@ const Explore = () => {
                                     </div>
                                 </>
                             ) : (
-                                <p className="text-dark-400 text-sm text-center py-12">No patents found</p>
+                                <EmptyState
+                                    title="No patents found"
+                                    description="No patents match your active search term or filter criteria."
+                                    icon={Lightbulb}
+                                />
                             )}
                         </div>
                     )}
@@ -541,7 +573,11 @@ const Explore = () => {
                                     </div>
                                 </>
                             ) : (
-                                <p className="text-dark-400 text-sm text-center py-12">No workshops found</p>
+                                <EmptyState
+                                    title="No workshops found"
+                                    description="No workshops match your active search term or filter criteria."
+                                    icon={Briefcase}
+                                />
                             )}
                         </div>
                     )}
@@ -602,7 +638,11 @@ const Explore = () => {
                                     </div>
                                 </>
                             ) : (
-                                <p className="text-dark-400 text-sm text-center py-12">No seminars found</p>
+                                <EmptyState
+                                    title="No seminars found"
+                                    description="No seminars match your active search term or filter criteria."
+                                    icon={Microphone}
+                                />
                             )}
                         </div>
                     )}

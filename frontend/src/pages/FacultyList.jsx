@@ -128,14 +128,15 @@ const FacultyList = () => {
     };
 
     const toggleSelectAll = () => {
-        if (selected.length === faculty.length) {
+        const selectable = faculty.filter(f => f.role !== 'admin');
+        if (selected.length === selectable.length) {
             setSelected([]);
         } else {
-            setSelected(faculty.map(f => f._id));
+            setSelected(selectable.map(f => f._id));
         }
     };
 
-    const isAllSelected = faculty.length > 0 && selected.length === faculty.length;
+    const isAllSelected = faculty.length > 0 && faculty.filter(f => f.role !== 'admin').length > 0 && selected.length === faculty.filter(f => f.role !== 'admin').length;
     const isSomeSelected = selected.length > 0;
 
     return (
@@ -253,13 +254,15 @@ const FacultyList = () => {
                                     >
                                         {canDelete && (
                                             <td className="px-4 py-3.5">
-                                                <button onClick={() => toggleSelect(f._id)} className="text-dark-400 hover:text-primary-600 transition-colors">
-                                                    {selected.includes(f._id) ? (
-                                                        <CheckSquare className="w-5 h-5 text-primary-600" />
-                                                    ) : (
-                                                        <Square className="w-5 h-5" />
-                                                    )}
-                                                </button>
+                                                {f.role !== 'admin' && (
+                                                    <button onClick={() => toggleSelect(f._id)} className="text-dark-400 hover:text-primary-600 transition-colors">
+                                                        {selected.includes(f._id) ? (
+                                                            <CheckSquare className="w-5 h-5 text-primary-600" />
+                                                        ) : (
+                                                            <Square className="w-5 h-5" />
+                                                        )}
+                                                    </button>
+                                                )}
                                             </td>
                                         )}
                                         <td className="px-5 py-3.5">
@@ -295,7 +298,7 @@ const FacultyList = () => {
                                                         <Key className="w-4 h-4" />
                                                     </button>
                                                 )}
-                                                {canDelete && (
+                                                {canDelete && f.role !== 'admin' && (
                                                     <button
                                                         onClick={() => handleDelete(f._id)}
                                                         className="p-2 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
@@ -336,7 +339,7 @@ const FacultyList = () => {
                                 className={`card p-4 transition-colors ${selected.includes(f._id) ? 'ring-2 ring-primary-400 bg-primary-50/30' : ''}`}
                             >
                                 <div className="flex items-start gap-3">
-                                    {canDelete && (
+                                    {canDelete && f.role !== 'admin' && (
                                         <button onClick={() => toggleSelect(f._id)} className="mt-0.5 text-dark-400 hover:text-primary-600 flex-shrink-0">
                                             {selected.includes(f._id) ? (
                                                 <CheckSquare className="w-5 h-5 text-primary-600" />
@@ -378,7 +381,7 @@ const FacultyList = () => {
                                                  <Key className="w-5 h-5" />
                                              </button>
                                          )}
-                                         {canDelete && (
+                                         {canDelete && f.role !== 'admin' && (
                                              <button
                                                  onClick={() => handleDelete(f._id)}
                                                  className="p-2 text-dark-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"

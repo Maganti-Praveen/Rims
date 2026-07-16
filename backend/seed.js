@@ -9,8 +9,8 @@ const seed = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log('MongoDB Connected');
 
-        // Seed Admin user
-        const existingAdmin = await User.findOne({ role: 'admin' });
+        // Seed Super Admin user
+        const existingAdmin = await User.findOne({ role: { $in: ['super_admin', 'admin'] } });
         if (existingAdmin) {
             console.log('Admin user already exists:', existingAdmin.email);
         } else {
@@ -19,10 +19,11 @@ const seed = async () => {
                 employeeId: 'ADMIN001',
                 email: 'admin@rcee.ac.in',
                 password: 'admin123',
-                role: 'admin',
+                role: 'super_admin',
                 department: 'Administration',
+                designation: 'Central Administrator',
             });
-            console.log('Admin user created successfully:');
+            console.log('Super Admin user created successfully:');
             console.log(`  Email: ${admin.email}`);
             console.log('  Password: admin123');
         }

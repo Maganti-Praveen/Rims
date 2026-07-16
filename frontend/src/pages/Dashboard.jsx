@@ -79,15 +79,90 @@ const Dashboard = () => {
         finally { setExporting(false); }
     };
 
-    /* ── Chart.js line chart data ── */
     const lineData = {
         labels: trendData.map(d => d.year),
         datasets: [
-            { label: 'Publications', data: trendData.map(d => d.publications || 0), borderColor: '#ea580c', backgroundColor: 'rgba(234,88,12,0.08)', fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#ea580c' },
-            { label: 'Patents',      data: trendData.map(d => d.patents      || 0), borderColor: '#d97706', backgroundColor: 'rgba(217,119,6,0.08)',   fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#d97706' },
-            { label: 'Workshops',    data: trendData.map(d => d.workshops    || 0), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)',  fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#10b981' },
-            { label: 'Seminars',     data: trendData.map(d => d.seminars     || 0), borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,0.08)',  fill: true, tension: 0.4, borderWidth: 2, pointRadius: 4, pointBackgroundColor: '#7c3aed' },
-        ],
+            {
+                label: 'Publications',
+                data: trendData.map(d => d.publications || 0),
+                borderColor: '#ea580c',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(234,88,12,0.08)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(234,88,12,0.2)');
+                    grad.addColorStop(1, 'rgba(234,88,12,0.0)');
+                    return grad;
+                },
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#ea580c',
+                hoverRadius: 6
+            },
+            {
+                label: 'Patents',
+                data: trendData.map(d => d.patents || 0),
+                borderColor: '#d97706',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(217,119,6,0.08)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(217,119,6,0.2)');
+                    grad.addColorStop(1, 'rgba(217,119,6,0.0)');
+                    return grad;
+                },
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#d97706',
+                hoverRadius: 6
+            },
+            {
+                label: 'Workshops',
+                data: trendData.map(d => d.workshops || 0),
+                borderColor: '#10b981',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(16,185,129,0.08)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(16,185,129,0.2)');
+                    grad.addColorStop(1, 'rgba(16,185,129,0.0)');
+                    return grad;
+                },
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#10b981',
+                hoverRadius: 6
+            },
+            {
+                label: 'Seminars',
+                data: trendData.map(d => d.seminars || 0),
+                borderColor: '#7c3aed',
+                backgroundColor: (context) => {
+                    const { chart } = context;
+                    const { ctx, chartArea } = chart;
+                    if (!chartArea) return 'rgba(124,58,237,0.08)';
+                    const grad = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                    grad.addColorStop(0, 'rgba(124,58,237,0.2)');
+                    grad.addColorStop(1, 'rgba(124,58,237,0.0)');
+                    return grad;
+                },
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: '#7c3aed',
+                hoverRadius: 6
+            }
+        ]
     };
     const lineOptions = {
         responsive: true,
@@ -157,9 +232,29 @@ const Dashboard = () => {
             </div>
 
             {loading ? (
-                <div className="flex flex-col items-center justify-center h-64 gap-3">
-                    <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin" />
-                    <p className="text-dark-400 text-sm">Loading dashboard…</p>
+                <div className="space-y-6">
+                    {/* Stat cards skeleton */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 sm:gap-4">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="card p-4 sm:p-5 animate-pulse bg-white space-y-3 border border-dark-100">
+                                <div className="w-8 h-8 rounded-lg bg-dark-200/60" />
+                                <div className="h-3 w-16 bg-dark-200/50 rounded" />
+                                <div className="h-6 w-10 bg-dark-200/70 rounded" />
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Charts skeleton */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div className="card p-5 animate-pulse h-[410px] space-y-4 bg-white border border-dark-100">
+                            <div className="h-4 w-1/4 bg-dark-200/50 rounded" />
+                            <div className="h-64 w-full bg-dark-100/40 rounded-xl" />
+                        </div>
+                        <div className="card p-5 animate-pulse h-[410px] space-y-4 bg-white border border-dark-100">
+                            <div className="h-4 w-1/4 bg-dark-200/50 rounded" />
+                            <div className="h-64 w-full bg-dark-100/40 rounded-xl" />
+                        </div>
+                    </div>
                 </div>
             ) : (
                 <>

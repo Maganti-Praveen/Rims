@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin', 'hod', 'faculty'],
+        enum: ['super_admin', 'admin', 'dean', 'hod', 'faculty'],
         default: 'faculty',
     },
     designation: {
@@ -37,12 +37,16 @@ const userSchema = new mongoose.Schema({
         enum: [
             'Assistant Professor',
             'Associate Professor',
+            'Professor',
             'Head of the Department',
+            'Dean SOC',
+            'Dean SOE',
             'Principal',
             'Dean Planning',
             'Dean Internal Affairs',
             'Dean Placements',
             'Dean Academics',
+            'Central Administrator',
         ],
         default: 'Assistant Professor',
     },
@@ -50,6 +54,23 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, 'Please add a department'],
         trim: true,
+    },
+    departmentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Department',
+        default: null,
+    },
+    schoolId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'School',
+        default: null,
+    },
+    isActive: {
+        type: Boolean,
+        default: true,
+    },
+    lastLogin: {
+        type: Date,
     },
     joiningDate: {
         type: Date,

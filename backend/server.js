@@ -9,13 +9,16 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 const autoSeedAcademicYears = require('./utils/autoSeedAcademicYears');
 const autoSeedScoreConfig = require('./utils/autoSeedScoreConfig');
+const autoSeedSchoolsAndDepartments = require('./utils/autoSeedSchoolsAndDepartments');
+const { seedEmailTemplates } = require('./utils/autoSeedEmailTemplates');
 
-// Connect to database, then auto-ensure current academic years exist & seed score configs
+// Connect to database, then auto-ensure current academic years, score configs, schools/depts, & email templates exist
 connectDB().then(() => {
     autoSeedAcademicYears();
     autoSeedScoreConfig();
+    autoSeedSchoolsAndDepartments();
+    seedEmailTemplates();
 });
-
 
 const app = express();
 
@@ -30,12 +33,17 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Serve uploaded files from memory folder
-app.use('/uploads', express.static(path.join(__dirname, '..', 'memory')));
+const { protect } = require('./middleware/auth');
+
+// Serve uploaded files securely from memory folder
+app.use('/uploads', protect, express.static(path.join(__dirname, '..', 'memory')));
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
+app.use('/api/schools', require('./routes/schoolRoutes'));
+app.use('/api/departments', require('./routes/departmentRoutes'));
+app.use('/api/email-templates', require('./routes/emailTemplateRoutes'));
 app.use('/api/education', require('./routes/educationRoutes'));
 app.use('/api/certifications', require('./routes/certificationRoutes'));
 app.use('/api/publications', require('./routes/publicationRoutes'));

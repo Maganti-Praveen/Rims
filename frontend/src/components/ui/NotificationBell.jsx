@@ -90,8 +90,8 @@ const NotificationBell = () => {
             </button>
 
             {open && (
-                <div className="absolute top-full mt-2 right-0 bg-white rounded-2xl shadow-xl border border-dark-100 z-50 w-80 max-h-96 overflow-hidden">
-                    <div className="flex items-center justify-between p-3 border-b border-dark-100">
+                <div className="absolute top-full mt-2 right-0 glass z-50 w-80 max-h-96 overflow-hidden">
+                    <div className="flex items-center justify-between p-3 border-b border-primary-100/50 bg-gradient-to-r from-primary-50/50 to-orange-50/50">
                         <h3 className="font-semibold text-dark-900 text-sm">Notifications</h3>
                         {unreadCount > 0 && (
                             <button onClick={markAllAsRead} className="text-xs text-primary-600 hover:text-primary-700 flex items-center gap-1">

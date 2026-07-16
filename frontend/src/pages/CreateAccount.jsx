@@ -141,6 +141,10 @@ const CreateAccount = () => {
                                     <select name="role" value={form.role} onChange={handleChange} className="select-field">
                                         <option value="faculty">Faculty</option>
                                         <option value="hod">HOD</option>
+                                        <option value="dean">Dean</option>
+                                        {(currentUser?.role === 'super_admin' || currentUser?.role === 'admin') && (
+                                            <option value="super_admin">Super Admin</option>
+                                        )}
                                     </select>
                                 )}
                             </div>
@@ -149,12 +153,16 @@ const CreateAccount = () => {
                                 <select name="designation" value={form.designation} onChange={handleChange} className="select-field">
                                     <option value="Assistant Professor">Assistant Professor</option>
                                     <option value="Associate Professor">Associate Professor</option>
+                                    <option value="Professor">Professor</option>
                                     <option value="Head of the Department">Head of the Department</option>
+                                    <option value="Dean SOC">Dean SOC</option>
+                                    <option value="Dean SOE">Dean SOE</option>
                                     <option value="Principal">Principal</option>
                                     <option value="Dean Planning">Dean Planning</option>
                                     <option value="Dean Internal Affairs">Dean Internal Affairs</option>
                                     <option value="Dean Placements">Dean Placements</option>
                                     <option value="Dean Academics">Dean Academics</option>
+                                    <option value="Central Administrator">Central Administrator</option>
                                 </select>
                             </div>
                             <div>

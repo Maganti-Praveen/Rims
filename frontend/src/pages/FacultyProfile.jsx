@@ -243,8 +243,49 @@ const FacultyProfile = () => {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+            <div className="space-y-6 animate-pulse">
+                {/* Profile Header Skeleton */}
+                <div className="card overflow-hidden bg-white border border-dark-100">
+                    <div className="h-32 bg-dark-200/40" />
+                    <div className="p-6 pt-0 relative">
+                        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-10 mb-4">
+                            <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4">
+                                <div className="w-20 h-20 rounded-2xl bg-dark-300/80 border-4 border-white shadow shrink-0" />
+                                <div className="space-y-2 text-center sm:text-left mb-2">
+                                    <div className="h-5 w-48 bg-dark-200/80 rounded mx-auto sm:mx-0" />
+                                    <div className="h-3.5 w-32 bg-dark-200/50 rounded mx-auto sm:mx-0" />
+                                </div>
+                            </div>
+                            <div className="flex gap-2">
+                                <div className="h-9 w-24 bg-dark-200/60 rounded-xl" />
+                                <div className="h-9 w-24 bg-dark-200/60 rounded-xl" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Score Card Skeleton */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[...Array(4)].map((_, i) => (
+                        <div key={i} className="card p-4 bg-white border border-dark-100 space-y-3">
+                            <div className="h-3 w-16 bg-dark-200/50 rounded" />
+                            <div className="h-6 w-10 bg-dark-200/80 rounded" />
+                        </div>
+                    ))}
+                </div>
+
+                {/* Sections Skeletons */}
+                <div className="space-y-3">
+                    {[...Array(3)].map((_, i) => (
+                        <div key={i} className="card p-4 bg-white border border-dark-100 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-5 h-5 bg-dark-200/60 rounded" />
+                                <div className="h-4 w-32 bg-dark-200/80 rounded" />
+                            </div>
+                            <div className="w-4 h-4 bg-dark-200/50 rounded" />
+                        </div>
+                    ))}
+                </div>
             </div>
         );
     }
@@ -526,51 +567,65 @@ const FacultyProfile = () => {
     return (
         <div>
             {/* Profile Header */}
-            <div className="card p-6 mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <ProfilePicture
-                            faculty={faculty}
-                            canEdit={canEdit}
-                            onUpdate={(updated) => setFaculty(updated)}
-                        />
-                        <div>
-                            <h1 className="text-xl font-bold text-dark-900">{faculty.name}</h1>
-                            <p className="text-dark-500 text-sm">{faculty.department} • {faculty.employeeId}</p>
-                            <div className="flex items-center gap-2 mt-1 flex-wrap">
-                                {faculty.designation && (
-                                    <span className="badge bg-violet-100 text-violet-700 border border-violet-200 text-xs font-medium">
-                                        {faculty.designation}
+            <div className="card mb-6 overflow-hidden">
+                {/* Cover Banner */}
+                <div className="h-32 bg-gradient-to-r from-primary-800 via-primary-600 to-primary-500 relative overflow-hidden">
+                    {/* Subtle grid pattern overlay */}
+                    <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                    {/* Glowing blur shapes */}
+                    <div className="absolute -right-10 -bottom-10 w-44 h-44 bg-white/10 rounded-full blur-xl" />
+                    <div className="absolute -left-10 -top-10 w-44 h-44 bg-orange-300/20 rounded-full blur-xl" />
+                </div>
+                
+                {/* Profile details & buttons */}
+                <div className="p-6 pt-0 relative">
+                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
+                        <div className="flex flex-col sm:flex-row items-center sm:items-end gap-4 text-center sm:text-left">
+                            <div className="relative border-4 border-white rounded-2xl bg-white shadow-md shrink-0 z-10 -mt-12 sm:-mt-16">
+                                <ProfilePicture
+                                    faculty={faculty}
+                                    canEdit={canEdit}
+                                    onUpdate={(updated) => setFaculty(updated)}
+                                />
+                            </div>
+                            <div className="mb-2">
+                                <h1 className="text-xl font-bold text-dark-900 leading-snug">{faculty.name}</h1>
+                                <p className="text-dark-500 text-sm mt-0.5">{faculty.department} • {faculty.employeeId}</p>
+                                <div className="flex items-center justify-center sm:justify-start gap-2 mt-2 flex-wrap">
+                                    {faculty.designation && (
+                                        <span className="badge bg-violet-100 text-violet-700 border border-violet-200 text-xs font-medium">
+                                            {faculty.designation}
+                                        </span>
+                                    )}
+                                    <span className={`badge ${faculty.role === 'hod' ? 'badge-warning' : 'badge-primary'}`}>
+                                        {faculty.role.toUpperCase()}
                                     </span>
-                                )}
-                                <span className={`badge ${faculty.role === 'hod' ? 'badge-warning' : 'badge-primary'}`}>
-                                    {faculty.role.toUpperCase()}
-                                </span>
-                                {education.find(e => e.isHighest) && (
-                                    <span className="badge bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold flex items-center gap-1">
-                                        <GraduationCap className="w-4 h-4 text-amber-600" /> {education.find(e => e.isHighest).degree}
-                                    </span>
-                                )}
+                                    {education.find(e => e.isHighest) && (
+                                        <span className="badge bg-amber-100 text-amber-700 border border-amber-200 text-xs font-semibold flex items-center gap-1">
+                                            <GraduationCap className="w-3.5 h-3.5 text-amber-600" /> {education.find(e => e.isHighest).degree}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                        {canEdit && (
-                            <button onClick={openEditProfile} className="btn-secondary flex items-center gap-2 text-sm">
-                                <PencilSimple className="w-4 h-4" /> Edit Profile
+                        <div className="flex flex-wrap justify-center gap-2 mb-2 shrink-0">
+                            {canEdit && (
+                                <button onClick={openEditProfile} className="btn-secondary flex items-center gap-1.5 text-xs py-2">
+                                    <PencilSimple className="w-4 h-4" /> Edit Profile
+                                </button>
+                            )}
+                            {canResetPassword && (
+                                <button
+                                    onClick={() => setResetPasswordOpen(true)}
+                                    className="btn-secondary flex items-center gap-1.5 text-xs text-amber-700 border-amber-300 hover:bg-amber-50 py-2"
+                                >
+                                    <Key className="w-4 h-4" /> Reset Password
+                                </button>
+                            )}
+                            <button onClick={() => setPdfModalOpen(true)} className="btn-secondary flex items-center gap-1.5 text-xs py-2">
+                                <DownloadSimple className="w-4 h-4" /> Save PDF
                             </button>
-                        )}
-                        {canResetPassword && (
-                            <button
-                                onClick={() => setResetPasswordOpen(true)}
-                                className="btn-secondary flex items-center gap-2 text-sm text-amber-700 border-amber-300 hover:bg-amber-50"
-                            >
-                                <Key className="w-4 h-4" /> Reset Password
-                            </button>
-                        )}
-                        <button onClick={() => setPdfModalOpen(true)} className="btn-secondary flex items-center gap-2 text-sm">
-                            <DownloadSimple className="w-4 h-4" /> Save PDF
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -18,6 +18,8 @@ import ScoreSettings from './pages/ScoreSettings';
 import Rankings from './pages/Rankings';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import SchoolManagement from './pages/SchoolManagement';
+import SiteSettings from './pages/SiteSettings';
 import NotFound from './pages/NotFound';
 import PWAInstallPrompt from './components/ui/PWAInstallPrompt';
 import OfflineOverlay from './components/ui/OfflineOverlay';
@@ -50,81 +52,93 @@ const App = () => {
 
                 {/* Faculty Home */}
                 <Route path="/home" element={
-                    <ProtectedRoute roles={['faculty', 'hod']}>
+                    <ProtectedRoute roles={['faculty', 'hod', 'dean']}>
                         <Layout><Home /></Layout>
                     </ProtectedRoute>
                 } />
 
                 {/* My Research */}
                 <Route path="/my-research" element={
-                    <ProtectedRoute roles={['faculty', 'hod']}>
+                    <ProtectedRoute roles={['faculty', 'hod', 'dean']}>
                         <Layout><MyResearch /></Layout>
                     </ProtectedRoute>
                 } />
 
                 {/* Admin & HOD routes */}
                 <Route path="/dashboard" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><Dashboard /></Layout>
                     </ProtectedRoute>
                 } />
 
+                <Route path="/schools" element={
+                    <ProtectedRoute roles={['super_admin', 'admin']}>
+                        <Layout><SchoolManagement /></Layout>
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/site-settings" element={
+                    <ProtectedRoute roles={['super_admin', 'admin']}>
+                        <Layout><SiteSettings /></Layout>
+                    </ProtectedRoute>
+                } />
+
                 <Route path="/faculty" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><FacultyList /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/faculty/:id" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><FacultyProfile /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/explore" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><Explore /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/compare" element={
-                    <ProtectedRoute roles={['admin']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean']}>
                         <Layout><DeptComparison /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/compare-faculty" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><FacultyComparison /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/score-settings" element={
-                    <ProtectedRoute roles={['admin']}>
+                    <ProtectedRoute roles={['super_admin', 'admin']}>
                         <Layout><ScoreSettings /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/rankings" element={
-                    <ProtectedRoute roles={['faculty', 'hod', 'admin']}>
+                    <ProtectedRoute roles={['faculty', 'hod', 'dean', 'admin', 'super_admin']}>
                         <Layout><Rankings /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/create-account" element={
-                    <ProtectedRoute roles={['admin', 'hod']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean', 'hod']}>
                         <Layout><CreateAccount /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/activity-logs" element={
-                    <ProtectedRoute roles={['admin']}>
+                    <ProtectedRoute roles={['super_admin', 'admin', 'dean']}>
                         <Layout><ActivityLogs /></Layout>
                     </ProtectedRoute>
                 } />
 
                 <Route path="/my-profile" element={
-                    <ProtectedRoute roles={['faculty', 'hod', 'admin']}>
+                    <ProtectedRoute roles={['faculty', 'hod', 'dean', 'admin', 'super_admin']}>
                         <Layout><MyProfile /></Layout>
                     </ProtectedRoute>
                 } />
